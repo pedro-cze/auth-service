@@ -1,0 +1,16 @@
+server:
+  port: 8989
+
+management:
+  server:
+    port: 9999
+
+spring:
+  datasource:
+    platform: postgres
+    url: jdbc:postgresql://localhost:5432/users
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
