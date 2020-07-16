@@ -1,10 +1,12 @@
 package cz.pedro.auth.repository
 
-import cz.pedro.auth.model.AppUser
+import cz.pedro.auth.entity.User
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface UserRepository : JpaRepository<AppUser, Long> {
-    fun findByUsername(username: String): AppUser?
+interface UserRepository : JpaRepository<User, Long> {
+
+    fun findByUsername(username: String): User?
+
 }
