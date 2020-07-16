@@ -3,6 +3,7 @@ package cz.pedro.auth.controller
 import cz.pedro.auth.data.LoginRequest
 import cz.pedro.auth.data.LoginResponse
 import cz.pedro.auth.service.AuthService
+import cz.pedro.auth.util.Either.Left
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -18,9 +19,8 @@ class AuthController(@Autowired val authService: AuthService, @Autowired val enc
     @PostMapping(path = ["/login"])
     fun auth(loginRequest: LoginRequest): ResponseEntity<LoginResponse> {
         val encodedPassword = encoder.encode(loginRequest.password)
-        val res = authService.login(loginRequest.username, encodedPassword)
-        return when (res.isLeft()) {
-            true -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+        return when (val res = authService.login(loginRequest.username, encodedPassword)) {
+            is Left -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
             else -> ResponseEntity.ok(LoginResponse(res.toString()))
         }
     }

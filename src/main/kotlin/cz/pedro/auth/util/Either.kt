@@ -2,7 +2,7 @@ package cz.pedro.auth.util
 
 sealed class Either<L, R> {
 
-    abstract fun <C> map(f: (R) -> C): C
+    abstract fun <C> map(f: (R) -> C): Either<L, C>
 
     abstract fun <C> flatMap(f: (R) -> Either<L, C>): Either<L, C>
 
@@ -10,13 +10,9 @@ sealed class Either<L, R> {
 
     class Left<L, R>(val value: L) : Either<L, R>() {
 
-        override fun <C> map(f: (R) -> C): C {
-            TODO("Not yet implemented")
-        }
+        override fun <C> map(f: (R) -> C): Either<L, C> = Left(value)
 
-        override fun <C> flatMap(f: (R) -> Either<L, C>): Either<L, C> {
-            TODO("Not yet implemented")
-        }
+        override fun <C> flatMap(f: (R) -> Either<L, C>): Either<L, C> = Left(value)
 
         override fun isLeft(): Boolean = true
 
@@ -25,13 +21,9 @@ sealed class Either<L, R> {
 
     class Right<L, R>(val value: R) : Either<L, R>() {
 
-        override fun <C> map(f: (R) -> C): C {
-            TODO("Not yet implemented")
-        }
+        override fun <C> map(f: (R) -> C): Either<L, C> = Right(f(value))
 
-        override fun <C> flatMap(f: (R) -> Either<L, C>): Either<L, C> {
-            TODO("Not yet implemented")
-        }
+        override fun <C> flatMap(f: (R) -> Either<L, C>): Either<L, C> = f(value)
 
         override fun isLeft(): Boolean = false
 
