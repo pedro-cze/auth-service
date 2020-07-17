@@ -43,6 +43,7 @@ dependencies {
 //	implementation("io.arrow-kt:arrow-core:$arrowVersion")
 //	implementation("io.arrow-kt:arrow-syntax:$arrowVersion")
 //	kapt("io.arrow-kt:arrow-meta:$arrowVersion")
+    implementation("com.auth0:java-jwt:3.10.3")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
