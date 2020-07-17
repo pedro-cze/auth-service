@@ -32,14 +32,14 @@ class AuthServiceTest {
     fun emptyUserNameLoginTest() {
         val result = authService.login("", "")
         check(result.isLeft())
-        check(result.fold(isEmptyUsername, { false }))
+        check(result.fold({ error -> error.map { it is CustomError.EmptyUsername }}, { false }))
     }
 
     @Test
     fun userNotFoundTest() {
         val result: Either<CustomError, String> = authService.login("John Doe", "password")
         check(result.isLeft())
-        check(result.fold(isUserNotFound, { false }))
+        check(result.fold({ error -> error.map { it is CustomError.UserNotFound }}, { false }))
     }
 
     @Test
@@ -47,7 +47,7 @@ class AuthServiceTest {
         Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(1L, "John Doe", "foo"))
         val result = authService.login("John Doe", "bar")
         check(result.isLeft())
-        check(result.fold(isWrongPassword, { false }))
+        check(result.fold({ error -> error.map { it is CustomError.Unauthorized }}, { false }))
     }
 
     @Test
@@ -55,10 +55,6 @@ class AuthServiceTest {
         Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(1L, "John Doe", "foo"))
         val result = authService.login("John Doe", "")
         check(result.isLeft())
-        check(result.fold(isWrongPassword, { false }))
+        check(result.fold({ error -> error.map { it is CustomError.Unauthorized }}, { false }))
     }
-
-    private val isUserNotFound: (CustomError) -> Boolean = { it is CustomError.UserNotFound }
-    private val isEmptyUsername: (CustomError) -> Boolean = { it is CustomError.EmptyUsername }
-    private val isWrongPassword: (CustomError) -> Boolean = { it is CustomError.Unauthorized }
 }
