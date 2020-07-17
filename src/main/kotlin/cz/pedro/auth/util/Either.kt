@@ -8,7 +8,9 @@ sealed class Either<L, R> {
 
     abstract fun isLeft(): Boolean
 
-    abstract fun getOrElse(f:() -> R): R
+    abstract fun getOrElse(f: () -> R): R
+
+    abstract fun <C> fold(f1: (L) -> C, f2: (R) -> C): C
 
     class Left<L, R>(private val value: L) : Either<L, R>() {
 
@@ -22,6 +24,7 @@ sealed class Either<L, R> {
 
         override fun getOrElse(f: () -> R): R = f()
 
+        override fun <C> fold(f1: (L) -> C, f2: (R) -> C): C = f1(value)
     }
 
     class Right<L, R>(private val value: R) : Either<L, R>() {
@@ -35,6 +38,8 @@ sealed class Either<L, R> {
         override fun toString(): String = value.toString()
 
         override fun getOrElse(f: () -> R): R = value
+
+        override fun <C> fold(f1: (L) -> C, f2: (R) -> C): C = f2(value)
     }
 
     companion object {
@@ -43,5 +48,4 @@ sealed class Either<L, R> {
 
         fun <L, R> right(value: R): Either<L, R> = Right(value)
     }
-
 }

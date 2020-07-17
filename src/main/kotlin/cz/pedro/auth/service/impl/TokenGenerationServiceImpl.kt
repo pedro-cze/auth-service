@@ -6,7 +6,7 @@ import cz.pedro.auth.entity.User
 import cz.pedro.auth.service.TokenGenerationService
 import java.time.LocalDateTime
 import java.time.ZoneOffset
-import java.util.*
+import java.util.Date
 
 class TokenGenerationServiceImpl : TokenGenerationService {
 
@@ -20,5 +20,4 @@ class TokenGenerationServiceImpl : TokenGenerationService {
 
     private fun getExpiration(): Date =
             Date.from(LocalDateTime.now().plusMinutes(10L).toInstant(ZoneOffset.UTC))
-
 }

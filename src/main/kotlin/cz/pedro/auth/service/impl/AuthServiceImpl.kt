@@ -5,15 +5,18 @@ import cz.pedro.auth.repository.UserRepository
 import cz.pedro.auth.service.AuthService
 import cz.pedro.auth.service.TokenGenerationService
 import cz.pedro.auth.util.CustomError
-import cz.pedro.auth.util.CustomError.*
+import cz.pedro.auth.util.CustomError.EmptyUsername
+import cz.pedro.auth.util.CustomError.UserNotFound
+import cz.pedro.auth.util.CustomError.Unauthorized
 import cz.pedro.auth.util.Either
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 @Service
 class AuthServiceImpl(
-        @Autowired val userRepository: UserRepository,
-        @Autowired val tokenGenerationService: TokenGenerationService) : AuthService {
+    @Autowired val userRepository: UserRepository,
+    @Autowired val tokenGenerationService: TokenGenerationService
+) : AuthService {
 
     override fun login(username: String, password: String): Either<CustomError, String> =
             checkUsername(username)
