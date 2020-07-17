@@ -21,11 +21,16 @@ class AuthServiceTest {
     @MockBean
     private lateinit var userRepository: UserRepository
 
+    @MockBean
+    private lateinit var generationService: TokenGenerationService
+
     @Test
     fun successfulLoginTest() {
         Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(1L, "John Doe", "hashed"))
+        Mockito.`when`(generationService.generateToken(User(1L, "John Doe", "hashed"))).thenReturn("token")
         val result = authService.login("John Doe", "hashed")
-        check(result.toString() == "token")
+        check(!result.isLeft())
+        check(result.fold({ false }, { res -> res == "token" }))
     }
 
     @Test
