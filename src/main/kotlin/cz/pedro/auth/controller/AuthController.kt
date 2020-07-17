@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping(path = ["/auth"])
-class AuthController(@Autowired val authService: AuthService,
-                     @Autowired val encoder: BCryptPasswordEncoder) {
+class AuthController(
+    @Autowired val authService: AuthService,
+    @Autowired val encoder: BCryptPasswordEncoder
+) {
 
     @PostMapping(path = ["/login"])
     fun auth(loginRequest: LoginRequest): ResponseEntity<LoginResponse> {
@@ -27,5 +29,4 @@ class AuthController(@Autowired val authService: AuthService,
             else -> ResponseEntity.ok(LoginResponse(res.toString()))
         }
     }
-
 }

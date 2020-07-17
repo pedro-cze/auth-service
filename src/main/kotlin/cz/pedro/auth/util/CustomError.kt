@@ -7,5 +7,4 @@ sealed class CustomError(val message: String, val cause: Exception?) {
     class EmptyUsername(message: String, cause: Exception? = null) : CustomError(message, cause)
 
     class Unauthorized(message: String, cause: Exception? = null) : CustomError(message, cause)
-
 }

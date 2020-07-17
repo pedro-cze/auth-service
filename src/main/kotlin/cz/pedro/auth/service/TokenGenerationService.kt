@@ -7,5 +7,4 @@ import org.springframework.stereotype.Service
 interface TokenGenerationService {
 
     fun generateToken(user: User): String
-
 }

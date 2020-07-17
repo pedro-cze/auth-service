@@ -39,7 +39,7 @@ class AuthServiceTest {
     fun userNotFoundTest() {
         val result: Either<CustomError, String> = authService.login("John Doe", "password")
         check(result.isLeft())
-        check(result.fold( isUserNotFound, { false } ))
+        check(result.fold(isUserNotFound, { false }))
     }
 
     @Test

@@ -11,5 +11,4 @@ class ServiceConfig {
     fun encoder(): BCryptPasswordEncoder {
         return BCryptPasswordEncoder()
     }
-
 }
