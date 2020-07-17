@@ -20,7 +20,7 @@ class AuthServiceTest {
     private lateinit var userRepository: UserRepository
 
     @Test
-    fun successfullLoginTest() {
+    fun successfulLoginTest() {
         Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(1L, "John Doe", "hashed"))
         val result = authService.login("John Doe", "hashed")
         check(result.toString() == "token")
