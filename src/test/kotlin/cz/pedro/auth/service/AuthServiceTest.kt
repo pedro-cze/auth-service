@@ -2,6 +2,8 @@ package cz.pedro.auth.service
 
 import cz.pedro.auth.entity.User
 import cz.pedro.auth.repository.UserRepository
+import cz.pedro.auth.util.CustomError
+import cz.pedro.auth.util.Either
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
@@ -30,12 +32,14 @@ class AuthServiceTest {
     fun emptyUserNameLoginTest() {
         val result = authService.login("", "")
         check(result.isLeft())
+        check(result.fold(isEmptyUsername, { false }))
     }
 
     @Test
     fun userNotFoundTest() {
-        val result = authService.login("John Doe", "password")
+        val result: Either<CustomError, String> = authService.login("John Doe", "password")
         check(result.isLeft())
+        check(result.fold( isUserNotFound, { false } ))
     }
 
     @Test
@@ -43,6 +47,7 @@ class AuthServiceTest {
         Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(1L, "John Doe", "foo"))
         val result = authService.login("John Doe", "bar")
         check(result.isLeft())
+        check(result.fold(isWrongPassword, { false }))
     }
 
     @Test
@@ -50,5 +55,10 @@ class AuthServiceTest {
         Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(1L, "John Doe", "foo"))
         val result = authService.login("John Doe", "")
         check(result.isLeft())
+        check(result.fold(isWrongPassword, { false }))
     }
+
+    private val isUserNotFound: (CustomError) -> Boolean = { it is CustomError.UserNotFound }
+    private val isEmptyUsername: (CustomError) -> Boolean = { it is CustomError.EmptyUsername }
+    private val isWrongPassword: (CustomError) -> Boolean = { it is CustomError.Unauthorized }
 }
