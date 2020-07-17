@@ -8,7 +8,7 @@ sealed class Either<L, R> {
 
     abstract fun isLeft(): Boolean
 
-    class Left<L, R>(val value: L) : Either<L, R>() {
+    class Left<L, R>(private val value: L) : Either<L, R>() {
 
         override fun <C> map(f: (R) -> C): Either<L, C> = Left(value)
 
@@ -19,7 +19,7 @@ sealed class Either<L, R> {
         override fun toString(): String = value.toString()
     }
 
-    class Right<L, R>(val value: R) : Either<L, R>() {
+    class Right<L, R>(private val value: R) : Either<L, R>() {
 
         override fun <C> map(f: (R) -> C): Either<L, C> = Right(f(value))
 
