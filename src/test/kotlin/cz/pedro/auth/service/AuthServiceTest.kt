@@ -1,8 +1,8 @@
 package cz.pedro.auth.service
 
 import cz.pedro.auth.entity.User
+import cz.pedro.auth.error.AuthenticationFailure
 import cz.pedro.auth.repository.UserRepository
-import cz.pedro.auth.util.CustomError
 import cz.pedro.auth.util.Either
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
@@ -37,14 +37,14 @@ class AuthServiceTest {
     fun emptyUserNameLoginTest() {
         val result = authService.login("", "")
         check(result.isLeft())
-        check(result.fold({ customError -> customError is CustomError.EmptyUsername }, { false }))
+        check(result.fold({ customError -> customError is AuthenticationFailure.EmptyUsername }, { false }))
     }
 
     @Test
     fun userNotFoundTest() {
-        val result: Either<CustomError, String> = authService.login("John Doe", "password")
+        val result: Either<AuthenticationFailure, String> = authService.login("John Doe", "password")
         check(result.isLeft())
-        check(result.fold({ customError -> customError is CustomError.UserNotFound }, { false }))
+        check(result.fold({ customError -> customError is AuthenticationFailure.UserNotFound }, { false }))
     }
 
     @Test
@@ -52,7 +52,7 @@ class AuthServiceTest {
         Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(1L, "John Doe", "foo"))
         val result = authService.login("John Doe", "bar")
         check(result.isLeft())
-        check(result.fold({ customError -> customError is CustomError.Unauthorized }, { false }))
+        check(result.fold({ customError -> customError is AuthenticationFailure.Unauthorized }, { false }))
     }
 
     @Test
@@ -60,6 +60,6 @@ class AuthServiceTest {
         Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(1L, "John Doe", "foo"))
         val result = authService.login("John Doe", "")
         check(result.isLeft())
-        check(result.fold({ customError -> customError is CustomError.Unauthorized }, { false }))
+        check(result.fold({ customError -> customError is AuthenticationFailure.Unauthorized }, { false }))
     }
 }
