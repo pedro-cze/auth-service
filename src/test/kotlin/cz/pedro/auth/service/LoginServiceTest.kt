@@ -10,6 +10,7 @@ import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest
@@ -18,14 +19,20 @@ class LoginServiceTest {
 
     @Autowired
     private lateinit var loginService: LoginService
+
     @MockBean
     private lateinit var userRepository: UserRepository
+
     @MockBean
     private lateinit var generationService: TokenGenerationService
+
+    @MockBean
+    private lateinit var encoder: BCryptPasswordEncoder
 
     @Test
     fun successfulLoginTest() {
         Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(1L, "John Doe", "hashed", "USER"))
+        Mockito.`when`(encoder.matches(Mockito.anyString(), Mockito.anyString())).thenReturn(true)
         Mockito.`when`(generationService.generateToken(AuthRequester(User(1L, "John Doe", "hashed", "USER")))).thenReturn("token")
         val result = loginService.login("John Doe", "hashed")
         check(!result.isLeft())
