@@ -30,11 +30,12 @@ extra["springCloudVersion"] = "Hoxton.SR4"
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.springframework.cloud:spring-cloud-starter-consul-config")
-    implementation("com.auth0:java-jwt:3.10.3")
+    implementation("com.auth0:java-jwt:3.4.0")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
@@ -53,7 +54,7 @@ ktlint {
     version.set("0.34.2")
     verbose.set(true)
     android.set(false)
-    disabledRules.set(setOf("comment-spacing", "import-ordering"))
+    disabledRules.set(setOf("comment-spacing", "import-ordering", "parameter-list-wrapping"))
 }
 
 tasks.withType<Test> {

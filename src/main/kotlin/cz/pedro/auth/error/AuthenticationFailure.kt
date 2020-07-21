@@ -1,10 +1,12 @@
 package cz.pedro.auth.error
 
-sealed class AuthenticationFailure(val message: String, val cause: Exception?) {
+sealed class AuthenticationFailure(private val message: String) {
 
-    class UserNotFound(message: String, cause: Exception? = null) : AuthenticationFailure(message, cause)
+    override fun toString(): String = "Failure: $message"
 
-    class EmptyUsername(message: String, cause: Exception? = null) : AuthenticationFailure(message, cause)
+    class UserNotFound(message: String = "") : AuthenticationFailure(message)
 
-    class Unauthorized(message: String, cause: Exception? = null) : AuthenticationFailure(message, cause)
+    class EmptyUsername(message: String = "") : AuthenticationFailure(message)
+
+    class Unauthorized(message: String = "") : AuthenticationFailure(message)
 }
