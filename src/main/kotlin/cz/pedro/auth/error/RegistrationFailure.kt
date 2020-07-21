@@ -1,16 +1,12 @@
 package cz.pedro.auth.error
 
-sealed class RegistrationFailure {
+sealed class RegistrationFailure(private val message: String) {
 
-    class UsernameAlreadyUsed(val message: String = "") : RegistrationFailure() {
-        override fun toString(): String = "Failure: $message"
-    }
+    override fun toString(): String = "Failure: $message"
 
-    class SavingFailed(val message: String = "") : RegistrationFailure() {
-        override fun toString(): String = "Failure: $message"
-    }
+    class UsernameAlreadyUsed(message: String = "") : RegistrationFailure(message)
 
-    class PendingRegistration(val message: String = "") : RegistrationFailure() {
-        override fun toString(): String = "Failure: $message"
-    }
+    class SavingFailed(message: String = "") : RegistrationFailure(message)
+
+    class PendingRegistration(message: String = "") : RegistrationFailure(message)
 }
