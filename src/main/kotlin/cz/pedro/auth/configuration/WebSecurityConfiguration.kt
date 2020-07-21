@@ -23,7 +23,7 @@ class WebSecurityConfiguration : WebSecurityConfigurerAdapter() {
         http?.csrf()?.disable()?.sessionManagement()?.sessionCreationPolicy(SessionCreationPolicy.STATELESS)?.and()
                 ?.addFilter(AuthorizationFilter(authenticationManager(), userDetailsService() as AuthorizationService))
                 ?.authorizeRequests()
-                ?.antMatchers(HttpMethod.POST, "/login")?.permitAll()
+                ?.antMatchers(HttpMethod.POST, "/auth/login")?.permitAll()
                 ?.antMatchers(HttpMethod.POST, "/admin/*")?.hasRole("ADMIN")
                 ?.antMatchers(HttpMethod.DELETE, "/admin/*")?.hasRole("ADMIN")
                 ?.anyRequest()?.authenticated()

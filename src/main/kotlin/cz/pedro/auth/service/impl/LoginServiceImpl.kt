@@ -10,12 +10,14 @@ import cz.pedro.auth.service.LoginService
 import cz.pedro.auth.service.TokenGenerationService
 import cz.pedro.auth.util.Either
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
 class LoginServiceImpl(
     @Autowired val userRepository: UserRepository,
-    @Autowired val tokenGenerationService: TokenGenerationService
+    @Autowired val tokenGenerationService: TokenGenerationService,
+    @Autowired val encoder: BCryptPasswordEncoder
 ) : LoginService {
 
     override fun login(username: String, password: String): Either<AuthenticationFailure, String> =
@@ -41,7 +43,7 @@ class LoginServiceImpl(
     }
 
     private fun checkPassword(user: AuthRequester, password: String): Either<AuthenticationFailure, String> {
-        return if (password == user.password) {
+        return if (encoder.matches(password, user.password)) {
             Either.right(generateToken(user))
         } else {
             Either.left(Unauthorized("Unauthorized"))

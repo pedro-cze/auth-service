@@ -31,7 +31,7 @@ class AuthorizationFilter(authenticationManager: AuthenticationManager, val serv
         val token: String? = request.getHeader(HEADER_STRING)
         token?.let {
 
-            val username = JWT.require(Algorithm.HMAC512(SECRET))
+            val username = JWT.require(Algorithm.HMAC256(SECRET))
                     .build()
                     .verify(token.replace(TOKEN_PREFIX, "")).subject
 

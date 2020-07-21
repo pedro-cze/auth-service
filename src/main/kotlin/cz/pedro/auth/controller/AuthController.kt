@@ -24,10 +24,9 @@ class AuthController(
 
     @PostMapping(path = ["/login"])
     fun auth(@RequestBody loginRequest: LoginRequest): ResponseEntity<LoginResponse> {
-        val encodedPassword = encoder.encode(loginRequest.password)
-        return when (val res: Either<AuthenticationFailure, String> = loginService.login(loginRequest.username, encodedPassword)) {
+        return when (val res: Either<AuthenticationFailure, String> = loginService.login(loginRequest.username, loginRequest.password)) {
             is Left -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
-            else -> ResponseEntity.ok(LoginResponse(res.toString()))
+            else -> ResponseEntity.ok().body(LoginResponse(res.toString()))
         }
     }
 }
