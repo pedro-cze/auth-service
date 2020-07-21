@@ -36,12 +36,12 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.springframework.cloud:spring-cloud-starter-consul-config")
     implementation("com.auth0:java-jwt:3.4.0")
-	developmentOnly("org.springframework.boot:spring-boot-devtools")
-	runtimeOnly("org.postgresql:postgresql")
-	testImplementation("org.springframework.boot:spring-boot-starter-test") {
-		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
-	}
-	testImplementation("org.springframework.security:spring-security-test")
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
+    runtimeOnly("org.postgresql:postgresql")
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+        exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
+    }
+    testImplementation("org.springframework.security:spring-security-test")
 }
 
 dependencyManagement {
@@ -54,7 +54,7 @@ ktlint {
     version.set("0.34.2")
     verbose.set(true)
     android.set(false)
-    disabledRules.set(setOf("comment-spacing", "import-ordering"))
+    disabledRules.set(setOf("comment-spacing", "import-ordering", "parameter-list-wrapping"))
 }
 
 tasks.withType<Test> {

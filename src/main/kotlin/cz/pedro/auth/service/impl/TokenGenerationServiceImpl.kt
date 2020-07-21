@@ -2,6 +2,7 @@ package cz.pedro.auth.service.impl
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import cz.pedro.auth.security.JwtProperties
 import cz.pedro.auth.security.model.AuthRequester
 import cz.pedro.auth.service.TokenGenerationService
 import org.springframework.stereotype.Service
@@ -13,7 +14,7 @@ import java.util.Date
 class TokenGenerationServiceImpl : TokenGenerationService {
 
     override fun generateToken(user: AuthRequester): String {
-        val algorithm = Algorithm.HMAC256("secret_salt")
+        val algorithm = Algorithm.HMAC256(JwtProperties.SECRET)
         return JWT.create()
                 .withExpiresAt(getExpiration())
                 .withSubject(user.username)
@@ -21,5 +22,5 @@ class TokenGenerationServiceImpl : TokenGenerationService {
     }
 
     private fun getExpiration(): Date =
-            Date.from(LocalDateTime.now().plusMinutes(10L).toInstant(ZoneOffset.UTC))
+            Date.from(LocalDateTime.now().plusMinutes(JwtProperties.EXPIRATION_TIME).toInstant(ZoneOffset.UTC))
 }

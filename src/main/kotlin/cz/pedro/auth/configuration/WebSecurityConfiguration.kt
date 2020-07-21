@@ -1,6 +1,6 @@
 package cz.pedro.auth.configuration
 
-import cz.pedro.auth.security.JWTAuthorizationFilter
+import cz.pedro.auth.security.AuthorizationFilter
 import cz.pedro.auth.service.AuthorizationService
 import cz.pedro.auth.service.impl.AuthorizationServiceImpl
 import org.springframework.context.annotation.Bean
@@ -21,10 +21,11 @@ class WebSecurityConfiguration : WebSecurityConfigurerAdapter() {
 
     override fun configure(http: HttpSecurity?) {
         http?.csrf()?.disable()?.sessionManagement()?.sessionCreationPolicy(SessionCreationPolicy.STATELESS)?.and()
-                ?.addFilter(JWTAuthorizationFilter(authenticationManager(), userDetailsService() as AuthorizationService))
+                ?.addFilter(AuthorizationFilter(authenticationManager(), userDetailsService() as AuthorizationService))
                 ?.authorizeRequests()
                 ?.antMatchers(HttpMethod.POST, "/login")?.permitAll()
-                ?.antMatchers(HttpMethod.GET, "/api/public/*")?.hasRole("ADMIN")
+                ?.antMatchers(HttpMethod.POST, "/admin/*")?.hasRole("ADMIN")
+                ?.antMatchers(HttpMethod.DELETE, "/admin/*")?.hasRole("ADMIN")
                 ?.anyRequest()?.authenticated()
     }
 
