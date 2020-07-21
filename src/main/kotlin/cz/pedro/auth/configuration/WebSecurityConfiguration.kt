@@ -1,8 +1,8 @@
 package cz.pedro.auth.configuration
 
-import cz.pedro.auth.security.JWTAuthenticationFilter
 import cz.pedro.auth.security.JWTAuthorizationFilter
-import cz.pedro.auth.service.UserDetailsServiceImpl
+import cz.pedro.auth.service.AuthorizationService
+import cz.pedro.auth.service.impl.AuthorizationServiceImpl
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -20,19 +20,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 class WebSecurityConfiguration : WebSecurityConfigurerAdapter() {
 
     override fun configure(http: HttpSecurity?) {
-
-        val authFilter = JWTAuthenticationFilter()
-        authFilter.setAuthenticationManager(authenticationManager())
-
         http?.csrf()?.disable()?.sessionManagement()?.sessionCreationPolicy(SessionCreationPolicy.STATELESS)?.and()
-
-                ?.addFilter(authFilter)
-                ?.addFilter(JWTAuthorizationFilter(authenticationManager(), userDetailsService()))
+                ?.addFilter(JWTAuthorizationFilter(authenticationManager(), userDetailsService() as AuthorizationService))
                 ?.authorizeRequests()
                 ?.antMatchers(HttpMethod.POST, "/login")?.permitAll()
                 ?.antMatchers(HttpMethod.GET, "/api/public/*")?.hasRole("ADMIN")
                 ?.anyRequest()?.authenticated()
-
     }
 
     override fun configure(auth: AuthenticationManagerBuilder?) {
@@ -41,7 +34,7 @@ class WebSecurityConfiguration : WebSecurityConfigurerAdapter() {
 
     @Bean
     override fun userDetailsService(): UserDetailsService {
-        return UserDetailsServiceImpl()
+        return AuthorizationServiceImpl()
     }
 
     @Bean
@@ -50,8 +43,7 @@ class WebSecurityConfiguration : WebSecurityConfigurerAdapter() {
     }
 
     @Bean
-    fun passwordEncoder() : BCryptPasswordEncoder {
+    fun passwordEncoder(): BCryptPasswordEncoder {
         return BCryptPasswordEncoder()
     }
-
 }

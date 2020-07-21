@@ -13,5 +13,6 @@ data class User(
     @GeneratedValue(strategy = GenerationType.AUTO)
     var id: Long,
     var username: String,
-    var password: String
+    var password: String,
+    var authorities: String
 )

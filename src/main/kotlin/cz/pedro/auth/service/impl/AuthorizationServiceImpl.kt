@@ -1,0 +1,25 @@
+package cz.pedro.auth.service.impl
+
+import cz.pedro.auth.repository.UserRepository
+import cz.pedro.auth.security.model.AuthRequester
+import cz.pedro.auth.security.model.EmptyUserDetails
+import cz.pedro.auth.service.AuthorizationService
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.stereotype.Service
+
+@Service
+class AuthorizationServiceImpl : AuthorizationService {
+
+    @Autowired
+    private lateinit var userRepository: UserRepository
+
+    override fun loadUserByUsername(username: String?): UserDetails {
+        username?.let {
+            userRepository.findByUsername(it)?.let {
+                return AuthRequester(it)
+            }
+        }
+        return EmptyUserDetails()
+    }
+}

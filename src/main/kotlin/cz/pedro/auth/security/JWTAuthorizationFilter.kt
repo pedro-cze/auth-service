@@ -5,16 +5,17 @@ import com.auth0.jwt.algorithms.Algorithm
 import cz.pedro.auth.security.JwtProperties.Companion.HEADER_STRING
 import cz.pedro.auth.security.JwtProperties.Companion.SECRET
 import cz.pedro.auth.security.JwtProperties.Companion.TOKEN_PREFIX
+import cz.pedro.auth.service.AuthorizationService
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 import javax.servlet.FilterChain
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-class JWTAuthorizationFilter(authenticationManager: AuthenticationManager, val service: UserDetailsService) : BasicAuthenticationFilter(authenticationManager) {
+class JWTAuthorizationFilter(authenticationManager: AuthenticationManager, val service: AuthorizationService) : BasicAuthenticationFilter(authenticationManager) {
 
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain) {
         val header = request.getHeader(HEADER_STRING)
@@ -36,7 +37,7 @@ class JWTAuthorizationFilter(authenticationManager: AuthenticationManager, val s
 
             username?.let {
                 if (it.isBlank()) return null
-                val user = service.loadUserByUsername(username)
+                val user: UserDetails = service.loadUserByUsername(username)
                 return UsernamePasswordAuthenticationToken(user, null, user.authorities)
             }
         }
