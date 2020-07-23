@@ -68,7 +68,7 @@ databaseChangeLog:
                 value: admin
             - column:
                 name: password
-                value: test # change to props
+                value: $2a$10$d8LjAzX1YPnXp93puYNmruwTrBu8aC.Fka7mx2qazmD.igN5ZjzCC
             - column:
                 name: authorities
                 value: ADMIN
