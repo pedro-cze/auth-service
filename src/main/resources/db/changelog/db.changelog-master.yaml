@@ -1,0 +1,74 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: PK
+      changes:
+        - createTable:
+            tableName: auth_user
+            columns:
+              - column:
+                  name: id
+                  type: integer
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: username
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: password
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: authorities
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: auth_registration
+            columns:
+              - column:
+                  name: id
+                  type: integer
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: username
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: password
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 2
+      author: PK
+      changes:
+       - insert:
+           tableName: auth_user
+           columns:
+            - column:
+                name: id
+                value: 1
+            - column:
+                name: username
+                value: admin
+            - column:
+                name: password
+                value: test # change to props
+            - column:
+                name: authorities
+                value: ADMIN
