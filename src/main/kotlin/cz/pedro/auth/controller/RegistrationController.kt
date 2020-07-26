@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.util.*
 
 @RestController
 @RequestMapping(path = ["/admin"])
@@ -31,10 +32,10 @@ class RegistrationController(
     }
 
     @PostMapping(path = ["/registration/{registrationId}"])
-    fun confirm(@PathVariable registrationId: Long): ResponseEntity<String> =
+    fun confirm(@PathVariable registrationId: UUID): ResponseEntity<String> =
             ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Not implemented")
 
     @DeleteMapping(path = ["/registration/{registrationId}"])
-    fun reject(@PathVariable registrationId: Long): ResponseEntity<String> =
+    fun reject(@PathVariable registrationId: UUID): ResponseEntity<String> =
             ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Not implemented")
 }

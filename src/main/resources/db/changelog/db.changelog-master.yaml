@@ -33,8 +33,8 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: integer
-                  autoIncrement: true
+                  type: uuid
+                  autoIncrement: false
                   constraints:
                     primaryKey: true
                     nullable: false

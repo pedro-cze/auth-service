@@ -9,6 +9,7 @@ import cz.pedro.auth.service.RegistrationService
 import cz.pedro.auth.util.Either
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.util.*
 import javax.transaction.Transactional
 
 @Service
@@ -18,30 +19,55 @@ class RegistrationServiceImpl(
 ) : RegistrationService {
 
     @Transactional
-    override fun register(username: String, password: String): Either<RegistrationFailure, Long> {
+    override fun register(username: String, password: String): Either<RegistrationFailure, UUID> {
         return checkUsers(username)
                 .flatMap { checkRegistrations(it) }
                 .flatMap { saveRegistration(it, password) }
+    }
+
+    @Transactional
+    override fun confirm(registrationId: UUID): Either<RegistrationFailure, UUID> {
+        return loadRegistration(registrationId)
+                .flatMap { updateStatus(it, RegistrationStatus.CONFIRMED) }
+    }
+
+    private fun loadRegistration(registrationId: UUID): Either<RegistrationFailure, Registration> {
+        val registration = registrationRepository.findById(registrationId)
+        return if (registration.isPresent) {
+            Either.right(registration.get())
+        } else {
+            Either.left(RegistrationFailure.RegistrationNotFound())
+        }
+    }
+
+    private fun updateStatus(registration: Registration, status: RegistrationStatus): Either<RegistrationFailure, UUID> {
+        registration.status = status
+        val res = registrationRepository.save(registration)
+        return if (res.id == null) {
+            Either.left(RegistrationFailure.SavingFailed())
+        } else {
+            Either.right(res.id!!)
+        }
     }
 
     private fun checkUsers(username: String): Either<RegistrationFailure, String> {
         return if (userRepository.findByUsername(username) == null) {
             Either.right(username)
         } else {
-            Either.left(RegistrationFailure.UsernameAlreadyUsed("Username already taken."))
+            Either.left(RegistrationFailure.UsernameAlreadyUsed())
         }
     }
 
     private fun checkRegistrations(username: String): Either<RegistrationFailure, String> {
         val registration = registrationRepository.findByUsername(username)
         return if (registration?.status == RegistrationStatus.PENDING) {
-            Either.left(RegistrationFailure.PendingRegistration("Pending registration."))
+            Either.left(RegistrationFailure.PendingRegistration())
         } else {
             Either.right(username)
         }
     }
 
-    private fun saveRegistration(username: String, password: String): Either<RegistrationFailure, Long> {
+    private fun saveRegistration(username: String, password: String): Either<RegistrationFailure, UUID> {
         val registration = Registration(
                 username = username,
                 password = password,
@@ -49,7 +75,7 @@ class RegistrationServiceImpl(
         )
         val result = registrationRepository.save(registration)
         return if (result.id == null) {
-            Either.left(RegistrationFailure.SavingFailed("Something went wrong while trying to save registration."))
+            Either.left(RegistrationFailure.SavingFailed())
         } else {
             Either.right(result.id!!)
         }

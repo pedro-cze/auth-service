@@ -1,5 +1,6 @@
 package cz.pedro.auth.entity
 
+import java.util.*
 import javax.persistence.Entity
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
@@ -12,8 +13,7 @@ import javax.persistence.Table
 @Table(name = "AUTH_REGISTRATION")
 data class Registration(
         @Id
-        @GeneratedValue(strategy = GenerationType.AUTO)
-        var id: Long? = null,
+        var id: UUID? = UUID.randomUUID(),
         var username: String,
         var password: String,
         @Enumerated(EnumType.STRING)
