@@ -10,5 +10,7 @@ sealed class RegistrationFailure(private val message: String) {
 
     class PendingRegistration(message: String = "Pending registration") : RegistrationFailure(message)
 
-    class RegistrationNotFound(message: String = "Registration not found"): RegistrationFailure(message)
+    class RegistrationNotFound(message: String = "Registration not found") : RegistrationFailure(message)
+
+    class UnexpectedStatus(message: String = "Wrong registration status") : RegistrationFailure(message)
 }

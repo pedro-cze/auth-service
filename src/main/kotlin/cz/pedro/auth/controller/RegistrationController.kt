@@ -1,6 +1,7 @@
 package cz.pedro.auth.controller
 
 import cz.pedro.auth.data.RegistrationRequest
+import cz.pedro.auth.entity.RegistrationStatus
 import cz.pedro.auth.service.RegistrationService
 import cz.pedro.auth.util.Either
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.util.*
+import java.util.UUID
 
 @RestController
 @RequestMapping(path = ["/admin"])
@@ -32,10 +33,18 @@ class RegistrationController(
     }
 
     @PostMapping(path = ["/registration/{registrationId}"])
-    fun confirm(@PathVariable registrationId: UUID): ResponseEntity<String> =
-            ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Not implemented")
+    fun confirm(@PathVariable registrationId: UUID): ResponseEntity<String> {
+        return when (val result = registrationService.update(registrationId, RegistrationStatus.CONFIRMED)) {
+            is Either.Left -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result.toString())
+            else -> ResponseEntity.status(HttpStatus.NO_CONTENT).body(result.toString())
+        }
+    }
 
     @DeleteMapping(path = ["/registration/{registrationId}"])
-    fun reject(@PathVariable registrationId: UUID): ResponseEntity<String> =
-            ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Not implemented")
+    fun reject(@PathVariable registrationId: UUID): ResponseEntity<String> {
+        return when (val result = registrationService.update(registrationId, RegistrationStatus.REJECTED)) {
+            is Either.Left -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result.toString())
+            else -> ResponseEntity.status(HttpStatus.NO_CONTENT).body(result.toString())
+        }
+    }
 }

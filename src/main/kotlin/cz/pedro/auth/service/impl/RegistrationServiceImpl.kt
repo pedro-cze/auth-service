@@ -9,7 +9,7 @@ import cz.pedro.auth.service.RegistrationService
 import cz.pedro.auth.util.Either
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import java.util.*
+import java.util.UUID
 import javax.transaction.Transactional
 
 @Service
@@ -26,9 +26,10 @@ class RegistrationServiceImpl(
     }
 
     @Transactional
-    override fun confirm(registrationId: UUID): Either<RegistrationFailure, UUID> {
+    override fun update(registrationId: UUID, status: RegistrationStatus): Either<RegistrationFailure, UUID> {
         return loadRegistration(registrationId)
-                .flatMap { updateStatus(it, RegistrationStatus.CONFIRMED) }
+                .flatMap { checkStatus(it) }
+                .flatMap { updateStatus(it, status) }
     }
 
     private fun loadRegistration(registrationId: UUID): Either<RegistrationFailure, Registration> {
@@ -37,6 +38,14 @@ class RegistrationServiceImpl(
             Either.right(registration.get())
         } else {
             Either.left(RegistrationFailure.RegistrationNotFound())
+        }
+    }
+
+    private fun checkStatus(registration: Registration): Either<RegistrationFailure, Registration> {
+        return if (registration.status != RegistrationStatus.PENDING) {
+            Either.left(RegistrationFailure.UnexpectedStatus("Cannot update registration with status: ${registration.status}"))
+        } else {
+            Either.right(registration)
         }
     }
 

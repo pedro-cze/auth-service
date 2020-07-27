@@ -1,11 +1,9 @@
 package cz.pedro.auth.entity
 
-import java.util.*
+import java.util.UUID
 import javax.persistence.Entity
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
 import javax.persistence.Id
 import javax.persistence.Table
 
