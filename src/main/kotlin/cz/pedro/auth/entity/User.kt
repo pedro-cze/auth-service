@@ -11,7 +11,7 @@ import javax.persistence.Table
 data class User(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    var id: Long,
+    var id: Long? = null,
     var username: String,
     var password: String,
     var authorities: String,
