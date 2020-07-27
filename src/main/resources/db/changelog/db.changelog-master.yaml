@@ -28,6 +28,11 @@ databaseChangeLog:
                   type: varchar(255)
                   constraints:
                     nullable: false
+              - column:
+                  name: active
+                  type: boolean
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: auth_registration
             columns:
@@ -72,3 +77,6 @@ databaseChangeLog:
             - column:
                 name: authorities
                 value: ADMIN
+            - column:
+                name: active
+                value: true

@@ -43,7 +43,7 @@ class LoginServiceImpl(
     }
 
     private fun checkPassword(user: AuthRequester, password: String): Either<AuthenticationFailure, String> {
-        return if (encoder.matches(password, user.password)) {
+        return if (encoder.matches(password, user.password) && user.isEnabled) {
             Either.right(generateToken(user))
         } else {
             Either.left(Unauthorized("Unauthorized"))

@@ -31,9 +31,9 @@ class LoginServiceTest {
 
     @Test
     fun successfulLoginTest() {
-        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(1L, "John Doe", "hashed", "USER"))
+        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(1L, "John Doe", "hashed", "USER", true))
         Mockito.`when`(encoder.matches(Mockito.anyString(), Mockito.anyString())).thenReturn(true)
-        Mockito.`when`(generationService.generateToken(AuthRequester(User(1L, "John Doe", "hashed", "USER")))).thenReturn("token")
+        Mockito.`when`(generationService.generateToken(AuthRequester(User(1L, "John Doe", "hashed", "USER", true)))).thenReturn("token")
         val result = loginService.login("John Doe", "hashed")
         check(!result.isLeft())
         check(result.fold({ false }, { res -> res == "token" }))
@@ -55,7 +55,7 @@ class LoginServiceTest {
 
     @Test
     fun passwordNotMatchesTest() {
-        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(1L, "John Doe", "foo", "USER"))
+        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(1L, "John Doe", "foo", "USER", true))
         val result = loginService.login("John Doe", "bar")
         check(result.isLeft())
         check(result.fold({ customError -> customError is AuthenticationFailure.Unauthorized }, { false }))
@@ -63,8 +63,17 @@ class LoginServiceTest {
 
     @Test
     fun emptyPasswordTest() {
-        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(1L, "John Doe", "foo", "USER"))
+        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(1L, "John Doe", "foo", "USER", true))
         val result = loginService.login("John Doe", "")
+        check(result.isLeft())
+        check(result.fold({ customError -> customError is AuthenticationFailure.Unauthorized }, { false }))
+    }
+
+    @Test
+    fun notActiveUser() {
+        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(1L, "John Doe", "foo", "USER", false))
+        Mockito.`when`(encoder.matches(Mockito.anyString(), Mockito.anyString())).thenReturn(true)
+        val result = loginService.login("John Doe", "Test1234")
         check(result.isLeft())
         check(result.fold({ customError -> customError is AuthenticationFailure.Unauthorized }, { false }))
     }
