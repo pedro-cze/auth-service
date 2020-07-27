@@ -33,31 +33,6 @@ databaseChangeLog:
                   type: boolean
                   constraints:
                     nullable: false
-        - createTable:
-            tableName: auth_registration
-            columns:
-              - column:
-                  name: id
-                  type: uuid
-                  autoIncrement: false
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: username
-                  type: varchar(100)
-                  constraints:
-                    nullable: false
-              - column:
-                  name: password
-                  type: varchar(255)
-                  constraints:
-                    nullable: false
-              - column:
-                  name: status
-                  type: varchar(255)
-                  constraints:
-                    nullable: false
   - changeSet:
       id: 2
       author: PK
