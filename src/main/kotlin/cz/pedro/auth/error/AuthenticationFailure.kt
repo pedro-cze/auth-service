@@ -1,6 +1,6 @@
 package cz.pedro.auth.error
 
-sealed class AuthenticationFailure(private val message: String) {
+sealed class AuthenticationFailure(override val message: String) : GeneralFailure(message) {
 
     override fun toString(): String = "Failure: $message"
 

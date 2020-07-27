@@ -2,6 +2,7 @@ package cz.pedro.auth.service
 
 import cz.pedro.auth.entity.User
 import cz.pedro.auth.error.AuthenticationFailure
+import cz.pedro.auth.error.GeneralFailure
 import cz.pedro.auth.repository.UserRepository
 import cz.pedro.auth.security.model.AuthRequester
 import cz.pedro.auth.util.Either
@@ -12,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.test.context.ActiveProfiles
+import java.util.UUID
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -31,9 +33,10 @@ class LoginServiceTest {
 
     @Test
     fun successfulLoginTest() {
-        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(1L, "John Doe", "hashed", "USER", true))
+        val userId = UUID.randomUUID()
+        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(userId, "John Doe", "hashed", "USER", true))
         Mockito.`when`(encoder.matches(Mockito.anyString(), Mockito.anyString())).thenReturn(true)
-        Mockito.`when`(generationService.generateToken(AuthRequester(User(1L, "John Doe", "hashed", "USER", true)))).thenReturn("token")
+        Mockito.`when`(generationService.generateToken(AuthRequester(User(userId, "John Doe", "hashed", "USER", true)))).thenReturn("token")
         val result = loginService.login("John Doe", "hashed")
         check(!result.isLeft())
         check(result.fold({ false }, { res -> res == "token" }))
@@ -48,14 +51,14 @@ class LoginServiceTest {
 
     @Test
     fun userNotFoundTest() {
-        val result: Either<AuthenticationFailure, String> = loginService.login("John Doe", "password")
+        val result: Either<GeneralFailure, String> = loginService.login("John Doe", "password")
         check(result.isLeft())
         check(result.fold({ customError -> customError is AuthenticationFailure.UserNotFound }, { false }))
     }
 
     @Test
     fun passwordNotMatchesTest() {
-        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(1L, "John Doe", "foo", "USER", true))
+        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(UUID.randomUUID(), "John Doe", "foo", "USER", true))
         val result = loginService.login("John Doe", "bar")
         check(result.isLeft())
         check(result.fold({ customError -> customError is AuthenticationFailure.Unauthorized }, { false }))
@@ -63,18 +66,28 @@ class LoginServiceTest {
 
     @Test
     fun emptyPasswordTest() {
-        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(1L, "John Doe", "foo", "USER", true))
+        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(UUID.randomUUID(), "John Doe", "foo", "USER", true))
         val result = loginService.login("John Doe", "")
         check(result.isLeft())
         check(result.fold({ customError -> customError is AuthenticationFailure.Unauthorized }, { false }))
     }
 
     @Test
-    fun notActiveUser() {
-        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(1L, "John Doe", "foo", "USER", false))
+    fun notActiveUserTest() {
+        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(UUID.randomUUID(), "John Doe", "foo", "USER", false))
         Mockito.`when`(encoder.matches(Mockito.anyString(), Mockito.anyString())).thenReturn(true)
         val result = loginService.login("John Doe", "Test1234")
         check(result.isLeft())
         check(result.fold({ customError -> customError is AuthenticationFailure.Unauthorized }, { false }))
+    }
+
+    @Test
+    fun registerUserTest_usernameTaken() {
+        TODO()
+    }
+
+    @Test
+    fun updateUserTest() {
+        TODO()
     }
 }

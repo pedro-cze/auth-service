@@ -1,5 +1,6 @@
 package cz.pedro.auth.entity
 
+import java.util.UUID
 import javax.persistence.Entity
 import javax.persistence.GenerationType
 import javax.persistence.GeneratedValue
@@ -9,11 +10,11 @@ import javax.persistence.Table
 @Entity
 @Table(name = "AUTH_USER")
 data class User(
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    var id: Long? = null,
-    var username: String,
-    var password: String,
-    var authorities: String,
-    var active: Boolean
+        @Id
+        @GeneratedValue(strategy = GenerationType.AUTO)
+        var id: UUID? = null,
+        var username: String,
+        var password: String,
+        var authorities: String,
+        var active: Boolean
 )
