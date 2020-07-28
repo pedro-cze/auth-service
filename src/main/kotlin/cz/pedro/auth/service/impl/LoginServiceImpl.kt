@@ -2,7 +2,6 @@ package cz.pedro.auth.service.impl
 
 import cz.pedro.auth.data.ServiceRequest
 import cz.pedro.auth.entity.User
-import cz.pedro.auth.error.AuthenticationFailure.EmptyUsername
 import cz.pedro.auth.error.AuthenticationFailure.Unauthorized
 import cz.pedro.auth.error.AuthenticationFailure.UserNotFound
 import cz.pedro.auth.error.GeneralFailure
@@ -26,16 +25,14 @@ class LoginServiceImpl(
     @Autowired val encoder: BCryptPasswordEncoder
 ) : LoginService {
 
-    override fun login(username: String, password: String): Either<GeneralFailure, String> =
-            checkUsernameNotEmpty(username)
-                    .flatMap { loadUser(it) }
+    override fun login(request: ServiceRequest.AuthenticationRequest): Either<GeneralFailure, String> =
+            validationService.validate(request)
+                    .flatMap { loadUser(it.username!!) }
                     .map { AuthRequester(it) }
-                    .flatMap { checkPassword(it, password) }
+                    .flatMap { checkPassword(it, it.password) }
 
     override fun register(request: ServiceRequest.RegistrationRequest): Either<GeneralFailure, String> {
         return validationService.validate(request)
-                .flatMap { checkUsernameNotEmpty(it.username!!) }
-                .flatMap { checkUsernameTaken(it) }
                 .flatMap { createUser(request) }
                 .map { it.username }
     }
@@ -45,21 +42,6 @@ class LoginServiceImpl(
                 .flatMap { findUser(userId) }
                 .flatMap { patchUser(it, request) }
                 .map { it.username }
-    }
-
-    private fun checkUsernameNotEmpty(username: String): Either<GeneralFailure, String> {
-        return if (username.isEmpty()) {
-            Either.left(EmptyUsername("Empty username"))
-        } else {
-            Either.right(username)
-        }
-    }
-
-    private fun checkUsernameTaken(username: String): Either<GeneralFailure, String> {
-        return when (loadUser(username)) {
-            is Either.Right -> Either.left(RegistrationFailure.UsernameAlreadyUsed())
-            else -> Either.right(username)
-        }
     }
 
     private fun loadUser(username: String): Either<GeneralFailure, User> {
@@ -84,7 +66,7 @@ class LoginServiceImpl(
         return if (encoder.matches(password, user.password) && user.isEnabled) {
             Either.right(generateToken(user))
         } else {
-            Either.left(Unauthorized("Unauthorized"))
+            Either.left(Unauthorized())
         }
     }
 

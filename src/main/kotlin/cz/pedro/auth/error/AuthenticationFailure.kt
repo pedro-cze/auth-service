@@ -4,9 +4,9 @@ sealed class AuthenticationFailure(override val message: String) : GeneralFailur
 
     override fun toString(): String = "Failure: $message"
 
-    class UserNotFound(message: String = "") : AuthenticationFailure(message)
+    class UserNotFound(message: String = "User not found") : AuthenticationFailure(message)
 
-    class EmptyUsername(message: String = "") : AuthenticationFailure(message)
+    class EmptyUsername(message: String = "Empty username") : AuthenticationFailure(message)
 
-    class Unauthorized(message: String = "") : AuthenticationFailure(message)
+    class Unauthorized(message: String = "Unauthorized") : AuthenticationFailure(message)
 }

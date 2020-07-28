@@ -7,7 +7,7 @@ import java.util.UUID
 
 interface LoginService {
 
-    fun login(username: String, password: String): Either<GeneralFailure, String>
+    fun login(request: ServiceRequest.AuthenticationRequest): Either<GeneralFailure, String>
 
     fun register(request: ServiceRequest.RegistrationRequest): Either<GeneralFailure, String>
 

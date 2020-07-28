@@ -1,6 +1,11 @@
 package cz.pedro.auth.data
 
-sealed class ServiceRequest(open val username: String?, open val password: String?, open val authorities: String?, open val active: Boolean? = false) {
+sealed class ServiceRequest(open val username: String?, open val password: String?, open val authorities: String? = "", open val active: Boolean? = false) {
+
+    class AuthenticationRequest(
+            override val username: String,
+            override val password: String
+    ) : ServiceRequest(username, password)
 
     class RegistrationRequest(
             override val username: String,
