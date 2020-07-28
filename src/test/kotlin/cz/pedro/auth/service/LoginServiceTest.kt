@@ -116,7 +116,7 @@ class LoginServiceTest {
         val request = ServiceRequest.RegistrationRequest(username = "", password = "test1234", authorities = "USER, ADMIN", active = true)
         val result = loginService.register(request)
         check(result.isLeft())
-        check(result.fold( { customError -> customError is ValidationFailure.NullOrEmptyUsername }, { false }))
+        check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyUsername }, { false }))
     }
 
     @Test
@@ -124,7 +124,7 @@ class LoginServiceTest {
         val request = ServiceRequest.RegistrationRequest(username = "   ", password = "test1234", authorities = "USER, ADMIN", active = true)
         val result = loginService.register(request)
         check(result.isLeft())
-        check(result.fold( { customError -> customError is ValidationFailure.NullOrEmptyUsername }, { false }))
+        check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyUsername }, { false }))
     }
 
     @Test
@@ -132,7 +132,7 @@ class LoginServiceTest {
         val request = ServiceRequest.RegistrationRequest(username = "John Doe", password = "", authorities = "USER, ADMIN", active = true)
         val result = loginService.register(request)
         check(result.isLeft())
-        check(result.fold( { customError -> customError is ValidationFailure.NullOrEmptyPassword }, { false }))
+        check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyPassword }, { false }))
     }
 
     @Test
@@ -140,7 +140,7 @@ class LoginServiceTest {
         val request = ServiceRequest.RegistrationRequest(username = "John Doe", password = "   ", authorities = "USER, ADMIN", active = true)
         val result = loginService.register(request)
         check(result.isLeft())
-        check(result.fold( { customError -> customError is ValidationFailure.NullOrEmptyPassword }, { false }))
+        check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyPassword }, { false }))
     }
 
     @Test
@@ -149,7 +149,7 @@ class LoginServiceTest {
         val request = ServiceRequest.RegistrationRequest(username = "John Doe", password = "test1234", authorities = "USER, ADMIN", active = true)
         val result = loginService.register(request)
         check(result.isLeft())
-        check(result.fold( { customError -> customError is RegistrationFailure.UsernameAlreadyUsed }, { false } ))
+        check(result.fold({ customError -> customError is RegistrationFailure.UsernameAlreadyUsed }, { false }))
     }
 
     @Test
@@ -169,7 +169,7 @@ class LoginServiceTest {
         val request = ServiceRequest.PatchRequest("", null, null, active = true)
         val result = loginService.update(UUID.randomUUID(), request)
         check(result.isLeft())
-        check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyUsername },{ false } ))
+        check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyUsername }, { false }))
     }
 
     @Test
@@ -177,7 +177,7 @@ class LoginServiceTest {
         val request = ServiceRequest.PatchRequest("   ", null, null, active = true)
         val result = loginService.update(UUID.randomUUID(), request)
         check(result.isLeft())
-        check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyUsername },{ false } ))
+        check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyUsername }, { false }))
     }
 
     @Test
@@ -186,7 +186,7 @@ class LoginServiceTest {
         val request = ServiceRequest.PatchRequest("John Doe", null, null, active = true)
         val result = loginService.update(UUID.randomUUID(), request)
         check(result.isLeft())
-        check(result.fold({ customError -> customError is RegistrationFailure.UsernameAlreadyUsed },{ false } ))
+        check(result.fold({ customError -> customError is RegistrationFailure.UsernameAlreadyUsed }, { false }))
     }
 
     @Test
@@ -194,7 +194,7 @@ class LoginServiceTest {
         val request = ServiceRequest.PatchRequest(null, "", null, active = true)
         val result = loginService.update(UUID.randomUUID(), request)
         check(result.isLeft())
-        check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyPassword },{ false } ))
+        check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyPassword }, { false }))
     }
 
     @Test
@@ -242,7 +242,7 @@ class LoginServiceTest {
         val request = ServiceRequest.PatchRequest(null, null, "USER, ADMIN, TEST", true)
         val result = loginService.update(UUID.randomUUID(), request)
         check(result.isLeft())
-        check(result.fold( { customError -> customError is ValidationFailure.InvalidRequest }, { false } ))
+        check(result.fold({ customError -> customError is ValidationFailure.InvalidRequest }, { false }))
     }
 
     @Test
@@ -256,5 +256,4 @@ class LoginServiceTest {
         check(!result.isLeft())
         check(result.toString() == "John Doe")
     }
-
 }

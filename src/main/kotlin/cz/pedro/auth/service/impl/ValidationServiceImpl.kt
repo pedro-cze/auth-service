@@ -73,7 +73,7 @@ class ValidationServiceImpl(
     }
 
     private fun isValidAuthority(token: String): Boolean {
-         return ServiceAuthority.ADMIN.name == token || ServiceAuthority.USER.name == token
+        return ServiceAuthority.ADMIN.name == token || ServiceAuthority.USER.name == token
     }
 
     private fun checkUsernameNotEmpty(request: ServiceRequest): Either<GeneralFailure, ServiceRequest> {
