@@ -55,7 +55,7 @@ class LoginServiceImpl(
 
     private fun findUser(userId: UUID): Either<GeneralFailure, User> {
         val user = userRepository.findById(userId)
-        return if (user.isEmpty) {
+        return if (user.isEmpty()) {
             Either.left(UserNotFound())
         } else {
             Either.right(user.get())
