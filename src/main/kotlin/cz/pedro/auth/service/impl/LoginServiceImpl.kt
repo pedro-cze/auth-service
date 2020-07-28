@@ -90,7 +90,7 @@ class LoginServiceImpl(
                 authorities = patch.authorities ?: user.authorities,
                 active = patch.active ?: user.active
         )
-        val res = userRepository.save(user)
+        val res = userRepository.save(patched)
         return if (res.id != patched.id) {
             Either.left(RegistrationFailure.SavingFailed())
         } else {

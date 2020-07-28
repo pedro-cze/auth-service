@@ -1,6 +1,5 @@
 package cz.pedro.auth.controller
 
-import cz.pedro.auth.data.LoginRequest
 import cz.pedro.auth.data.ServiceRequest
 import cz.pedro.auth.error.GeneralFailure
 import cz.pedro.auth.service.LoginService
