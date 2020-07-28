@@ -14,7 +14,7 @@ data class AuthRequester(val user: User) : UserDetails {
                     .map { role -> GrantedAuthority { "ROLE_$role" } }
                     ?.collect(Collectors.toList()) ?: emptyList()
 
-    override fun isEnabled(): Boolean = true
+    override fun isEnabled(): Boolean = user.active
 
     override fun getUsername(): String = user.username
 

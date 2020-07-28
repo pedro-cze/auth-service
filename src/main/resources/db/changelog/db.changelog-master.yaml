@@ -28,29 +28,9 @@ databaseChangeLog:
                   type: varchar(255)
                   constraints:
                     nullable: false
-        - createTable:
-            tableName: auth_registration
-            columns:
               - column:
-                  name: id
-                  type: integer
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: username
-                  type: varchar(100)
-                  constraints:
-                    nullable: false
-              - column:
-                  name: password
-                  type: varchar(255)
-                  constraints:
-                    nullable: false
-              - column:
-                  name: status
-                  type: varchar(255)
+                  name: active
+                  type: boolean
                   constraints:
                     nullable: false
   - changeSet:
@@ -72,3 +52,6 @@ databaseChangeLog:
             - column:
                 name: authorities
                 value: ADMIN
+            - column:
+                name: active
+                value: true
