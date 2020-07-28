@@ -2,6 +2,6 @@ sudo: required
 language: java
 jdk: openjdk8
 before_script:
-  - chmod +x ./gradlew
+  - chmod +x gradlew
 script:
   - ./gradlew build --stacktrace
