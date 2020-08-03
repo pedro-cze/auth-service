@@ -25,7 +25,6 @@ configurations {
 
 repositories {
     mavenCentral()
-
 }
 
 extra["springCloudVersion"] = "Hoxton.SR4"
