@@ -6,12 +6,12 @@ env:
   - DB=postgres
 before_install:
   - sudo apt update
-  - docker run --rm -P --publish 127.0.0.1:5432:5432 --name pg-test -e POSTGRES_PASSWORD=postgres -d postgres
+  - docker run --rm -P --publish 5432:5432 --name pg-test -e POSTGRES_PASSWORD=postgres -d postgres
   - docker run -d -p 8500:8500 -p 8600:8600/udp consul agent -server -node=server-1 -bootstrap-expect=1 -client=0.0.0.0
   - docker ps
   - chmod +x gradlew
 script:
   - psql --version
-  - psql -U postgres && CREATE DATABASE users OWNER postgres
+  - psql -U postgres && psql CREATE DATABASE users OWNER postgres
   - sudo ./gradlew build
 
