@@ -15,4 +15,3 @@ script:
   - export PGPASSWORD=postgres
   - psql -h localhost -p 5432 -U postgres -c 'CREATE DATABASE users OWNER postgres'
   - sudo ./gradlew build
-

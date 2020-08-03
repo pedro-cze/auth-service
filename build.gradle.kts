@@ -8,6 +8,8 @@ plugins {
     kotlin("plugin.jpa") version "1.3.71"
     kotlin("kapt") version "1.3.72"
     id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
+    jacoco
+    id("com.github.dawnwords.jacoco.badge") version "0.2.0"
 }
 
 group = "cz.pedro"
@@ -58,6 +60,10 @@ ktlint {
     disabledRules.set(setOf("comment-spacing", "import-ordering", "parameter-list-wrapping"))
 }
 
+jacoco {
+    toolVersion = "0.8.5"
+}
+
 tasks.withType<Test> {
     useJUnitPlatform()
 }
@@ -66,5 +72,29 @@ tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
         jvmTarget = "1.8"
+    }
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.isEnabled = true
+        csv.isEnabled = true
+    }
+}
+
+tasks.generateJacocoBadge {
+    dependsOn(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                counter = "LINE"
+                value = "COVEREDRATIO"
+                minimum = "0.65".toBigDecimal()
+            }
+        }
     }
 }
