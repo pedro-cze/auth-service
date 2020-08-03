@@ -12,6 +12,7 @@ before_install:
   - chmod +x gradlew
 script:
   - psql --version
-  - psql -h localhost -p 5432 -d docker -U postgres --password postgres
+  - export PGPASSWORD=postgres
+  - psql -h localhost -p 5432 -d docker -U postgres --password -c 'CREATE DATABASE users OWNER postgres'
   - sudo ./gradlew build
 
