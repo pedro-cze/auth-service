@@ -7,6 +7,7 @@ env:
 before_install:
   - sudo apt update
   - docker-compose --version
+  - chmod +x gradlew
 script:
   - sudo ./gradlew assemble
 
