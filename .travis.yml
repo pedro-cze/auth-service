@@ -1,11 +1,11 @@
+sudo: required
 language: java
-
 services:
   - docker
 env:
   - DB=postgres
-
 before_install:
-  - docker run -d consul --name consul-test
-  - docker run --rm -P --publish 127.0.0.1:5432:5432 --name pg-test -e POSTGRES_PASSWORD=postgres -d postgres
-  - docker ps
+  - sudo apt update
+  - docker-compose --version
+  - sudo ./gradlew assemble
+
