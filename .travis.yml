@@ -14,4 +14,4 @@ script:
   - psql --version
   - export PGPASSWORD=postgres
   - psql -h localhost -p 5432 -U postgres -c 'CREATE DATABASE users OWNER postgres'
-  - sudo ./gradlew build
+  - sudo ./gradlew build jacocoTestReport generateJacocoBadge
