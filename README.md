@@ -1,5 +1,6 @@
 # auth-service
 Authentication service using spring boot written in Kotlin
+[![Build Status](https://travis-ci.com/pedro-cze/auth-service.svg?token=EvkxjVyDZp6WYVbjE5Ke&branch=master)](https://travis-ci.com/pedro-cze/auth-service)
 
 ### Build
 <code>./gradlew build</code>
