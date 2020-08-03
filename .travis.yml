@@ -1,7 +1,14 @@
-sudo: required
 language: java
-jdk: openjdk8
+
+services:
+  - docker
+env:
+  - DB=postgres
+
 before_install:
-  - chmod +x gradlew
-script:
-  - ./gradlew build --stacktrace
+  - docker run -d consul --name consul-test
+  - docker run --rm -P --publish 127.0.0.1:5432:5432 --name pg-test -e POSTGRES_PASSWORD=postgres -d postgres
+  - docker ps
+  - docker exec -it pg-test bash
+  - psql -U postgres
+  - CREATE DATABASE users OWNER Postgres
