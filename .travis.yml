@@ -17,4 +17,3 @@ script:
   - psql -h localhost -p 5432 -U postgres -c 'CREATE DATABASE users OWNER postgres'
   - sudo ./gradlew build
   - bash <(curl -s https://codecov.io/bash)
-
