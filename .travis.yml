@@ -12,6 +12,6 @@ before_install:
   - chmod +x gradlew
 script:
   - psql --version
-  - psql -h localhost -p 49153 -d docker -U postgres
+  - psql -h localhost -p 5432 -d docker -U postgres
   - sudo ./gradlew build
 
