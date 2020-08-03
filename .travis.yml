@@ -6,7 +6,7 @@ env:
   - DB=postgres
 before_install:
   - sudo apt update
-  - docker-compose --version
+  - docker ps -a
   - chmod +x gradlew
 script:
   - sudo ./gradlew assemble
