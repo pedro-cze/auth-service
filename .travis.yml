@@ -4,7 +4,6 @@ services:
   - docker
 env:
   - DB=postgres
-  - CODECOV_TOKEN="c005c026-2a7e-4e77-a341-aa6aa391034c"
 before_install:
   - sudo apt update
   - docker run --rm -P --publish 5432:5432 --name pg-test -e POSTGRES_PASSWORD=postgres -d postgres
@@ -16,4 +15,3 @@ script:
   - export PGPASSWORD=postgres
   - psql -h localhost -p 5432 -U postgres -c 'CREATE DATABASE users OWNER postgres'
   - sudo ./gradlew build
-  - bash <(curl -s https://codecov.io/bash)

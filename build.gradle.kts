@@ -9,6 +9,7 @@ plugins {
     kotlin("kapt") version "1.3.72"
     id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
     jacoco
+    id("com.github.dawnwords.jacoco.badge") version "0.2.0"
 }
 
 group = "cz.pedro"
@@ -24,6 +25,7 @@ configurations {
 
 repositories {
     mavenCentral()
+
 }
 
 extra["springCloudVersion"] = "Hoxton.SR4"
@@ -80,6 +82,10 @@ tasks.jacocoTestReport {
         xml.isEnabled = true
         csv.isEnabled = true
     }
+}
+
+tasks.generateJacocoBadge {
+    dependsOn(tasks.jacocoTestReport)
 }
 
 tasks.jacocoTestCoverageVerification {
