@@ -8,35 +8,39 @@ import cz.pedro.auth.error.GeneralFailure
 import cz.pedro.auth.error.RegistrationFailure
 import cz.pedro.auth.repository.UserRepository
 import cz.pedro.auth.security.model.AuthRequester
-import cz.pedro.auth.service.LoginService
+import cz.pedro.auth.service.AuthService
 import cz.pedro.auth.service.TokenGenerationService
 import cz.pedro.auth.service.ValidationService
 import cz.pedro.auth.util.Either
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
 @Service
-class LoginServiceImpl(
+class AuthServiceImpl(
     @Autowired val userRepository: UserRepository,
     @Autowired val validationService: ValidationService,
     @Autowired val tokenGenerationService: TokenGenerationService,
     @Autowired val encoder: BCryptPasswordEncoder
-) : LoginService {
+) : AuthService {
 
+    @Transactional(readOnly = true)
     override fun login(request: ServiceRequest.AuthenticationRequest): Either<GeneralFailure, String> =
             validationService.validate(request)
                     .flatMap { loadUser(it.username!!) }
                     .map { AuthRequester(it) }
-                    .flatMap { checkPassword(it, it.password) }
+                    .flatMap { checkPassword(request.password, it) }
 
+    @Transactional
     override fun register(request: ServiceRequest.RegistrationRequest): Either<GeneralFailure, String> {
         return validationService.validate(request)
                 .flatMap { createUser(request) }
                 .map { it.username }
     }
 
+    @Transactional
     override fun update(userId: UUID, request: ServiceRequest.PatchRequest): Either<GeneralFailure, String> {
         return validationService.validate(request)
                 .flatMap { findUser(userId) }
@@ -62,8 +66,8 @@ class LoginServiceImpl(
         }
     }
 
-    private fun checkPassword(user: AuthRequester, password: String): Either<GeneralFailure, String> {
-        return if (encoder.matches(password, user.password) && user.isEnabled) {
+    private fun checkPassword(rawPassword: String, user: AuthRequester): Either<GeneralFailure, String> {
+        return if (encoder.matches(rawPassword, user.password) && user.isEnabled) {
             Either.right(generateToken(user))
         } else {
             Either.left(Unauthorized())
@@ -73,7 +77,7 @@ class LoginServiceImpl(
     private fun generateToken(user: AuthRequester): String = tokenGenerationService.generateToken(user)
 
     private fun createUser(request: ServiceRequest.RegistrationRequest): Either<GeneralFailure, User> {
-        val user = User(null, request.username, request.password, request.authorities, request.active)
+        val user = User(null, request.username, encoder.encode(request.password), request.authorities, request.active)
         val res = userRepository.save(user)
         return if (res.id == null) {
             Either.left(RegistrationFailure.SavingFailed())

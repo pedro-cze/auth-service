@@ -2,8 +2,6 @@ package cz.pedro.auth.error
 
 sealed class AuthenticationFailure(override val message: String) : GeneralFailure(message) {
 
-    override fun toString(): String = "Failure: $message"
-
     class UserNotFound(message: String = "User not found") : AuthenticationFailure(message)
 
     class EmptyUsername(message: String = "Empty username") : AuthenticationFailure(message)

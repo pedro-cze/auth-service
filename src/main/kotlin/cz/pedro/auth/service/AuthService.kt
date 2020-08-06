@@ -5,7 +5,7 @@ import cz.pedro.auth.error.GeneralFailure
 import cz.pedro.auth.util.Either
 import java.util.UUID
 
-interface LoginService {
+interface AuthService {
 
     fun login(request: ServiceRequest.AuthenticationRequest): Either<GeneralFailure, String>
 
