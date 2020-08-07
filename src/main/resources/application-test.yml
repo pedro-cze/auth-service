@@ -8,3 +8,7 @@ spring:
     hibernate:
       ddl-auto: create-drop
     show-sql: true
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+server:
+  port: 8083

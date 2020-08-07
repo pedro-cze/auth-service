@@ -2,7 +2,7 @@ package cz.pedro.auth.controller
 
 import cz.pedro.auth.data.ServiceRequest
 import cz.pedro.auth.error.GeneralFailure
-import cz.pedro.auth.service.LoginService
+import cz.pedro.auth.service.AuthService
 import cz.pedro.auth.util.Either
 import cz.pedro.auth.util.Either.Left
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,12 +19,12 @@ import java.util.UUID
 @RestController
 @RequestMapping(path = ["/auth"])
 class AuthController(
-        @Autowired val loginService: LoginService
+        @Autowired val authService: AuthService
 ) {
 
     @PostMapping(path = ["/login"])
     fun auth(@RequestBody request: ServiceRequest.AuthenticationRequest): ResponseEntity<String> {
-        return when (val res: Either<GeneralFailure, String> = loginService.login(request)) {
+        return when (val res: Either<GeneralFailure, String> = authService.login(request)) {
             is Left -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(res.toString())
             else -> ResponseEntity.ok().body(res.toString())
         }
@@ -32,15 +32,15 @@ class AuthController(
 
     @PostMapping(path = ["/new"])
     fun register(@RequestBody serviceRequest: ServiceRequest.RegistrationRequest): ResponseEntity<String> {
-        return when (val res: Either<GeneralFailure, String> = loginService.register(serviceRequest)) {
+        return when (val res: Either<GeneralFailure, String> = authService.register(serviceRequest)) {
             is Left -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res.toString())
-            else -> ResponseEntity.ok().body(res.toString())
+            else -> ResponseEntity.status(HttpStatus.CREATED).body(res.toString())
         }
     }
 
     @RequestMapping(path = ["/update/{userId}"], method = [RequestMethod.PATCH])
     fun update(@PathVariable userId: UUID, @RequestBody patch: ServiceRequest.PatchRequest): ResponseEntity<String> {
-        return when (val res: Either<GeneralFailure, String> = loginService.update(userId, patch)) {
+        return when (val res: Either<GeneralFailure, String> = authService.update(userId, patch)) {
             is Left -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res.toString())
             else -> ResponseEntity.ok().body(res.toString())
         }

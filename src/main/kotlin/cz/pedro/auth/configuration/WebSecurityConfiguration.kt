@@ -24,8 +24,8 @@ class WebSecurityConfiguration : WebSecurityConfigurerAdapter() {
                 ?.addFilter(AuthorizationFilter(authenticationManager(), userDetailsService() as AuthorizationService))
                 ?.authorizeRequests()
                 ?.antMatchers(HttpMethod.POST, "/auth/login")?.permitAll()
-                ?.antMatchers(HttpMethod.POST, "/admin/*")?.hasRole("ADMIN")
-                ?.antMatchers(HttpMethod.DELETE, "/admin/*")?.hasRole("ADMIN")
+                ?.antMatchers(HttpMethod.POST, "/auth/new")?.hasRole("ADMIN")
+                ?.antMatchers(HttpMethod.PATCH, "/admin/update/*")?.hasRole("ADMIN")
                 ?.anyRequest()?.authenticated()
     }
 

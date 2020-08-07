@@ -10,6 +10,7 @@ import cz.pedro.auth.repository.UserRepository
 import cz.pedro.auth.security.model.AuthRequester
 import cz.pedro.auth.util.Either
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -21,10 +22,10 @@ import java.util.Optional
 
 @SpringBootTest
 @ActiveProfiles("test")
-class LoginServiceTest {
+class AuthServiceTest {
 
     @Autowired
-    private lateinit var loginService: LoginService
+    private lateinit var authService: AuthService
 
     @MockBean
     private lateinit var userRepository: UserRepository
@@ -41,28 +42,28 @@ class LoginServiceTest {
         Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(userId, "John Doe", "hashed", "USER", true))
         Mockito.`when`(encoder.matches(Mockito.anyString(), Mockito.anyString())).thenReturn(true)
         Mockito.`when`(generationService.generateToken(AuthRequester(User(userId, "John Doe", "hashed", "USER", true)))).thenReturn("token")
-        val result = loginService.login(ServiceRequest.AuthenticationRequest("John Doe", "hashed"))
+        val result = authService.login(ServiceRequest.AuthenticationRequest("John Doe", "hashed"))
         check(!result.isLeft())
         check(result.fold({ false }, { res -> res == "token" }))
     }
 
     @Test
     fun emptyUserNameLoginTest() {
-        val result = loginService.login(ServiceRequest.AuthenticationRequest("", ""))
+        val result = authService.login(ServiceRequest.AuthenticationRequest("", ""))
         check(result.isLeft())
         check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyUsername }, { false }))
     }
 
     @Test
     fun blankUserNameLoginTest() {
-        val result = loginService.login(ServiceRequest.AuthenticationRequest("   ", ""))
+        val result = authService.login(ServiceRequest.AuthenticationRequest("   ", ""))
         check(result.isLeft())
         check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyUsername }, { false }))
     }
 
     @Test
     fun userNotFoundTest() {
-        val result: Either<GeneralFailure, String> = loginService.login(ServiceRequest.AuthenticationRequest("John Doe", "password"))
+        val result: Either<GeneralFailure, String> = authService.login(ServiceRequest.AuthenticationRequest("John Doe", "password"))
         check(result.isLeft())
         check(result.fold({ customError -> customError is AuthenticationFailure.UserNotFound }, { false }))
     }
@@ -70,7 +71,7 @@ class LoginServiceTest {
     @Test
     fun passwordNotMatchesTest() {
         Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(UUID.randomUUID(), "John Doe", "foo", "USER", true))
-        val result = loginService.login(ServiceRequest.AuthenticationRequest("John Doe", "bar"))
+        val result = authService.login(ServiceRequest.AuthenticationRequest("John Doe", "bar"))
         check(result.isLeft())
         check(result.fold({ customError -> customError is AuthenticationFailure.Unauthorized }, { false }))
     }
@@ -78,7 +79,7 @@ class LoginServiceTest {
     @Test
     fun emptyPasswordTest() {
         Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(UUID.randomUUID(), "John Doe", "foo", "USER", true))
-        val result = loginService.login(ServiceRequest.AuthenticationRequest("John Doe", ""))
+        val result = authService.login(ServiceRequest.AuthenticationRequest("John Doe", ""))
         check(result.isLeft())
         check(result.fold({ customError -> customError is AuthenticationFailure.Unauthorized }, { false }))
     }
@@ -86,7 +87,7 @@ class LoginServiceTest {
     @Test
     fun blankPasswordTest() {
         Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(UUID.randomUUID(), "John Doe", "foo", "USER", true))
-        val result = loginService.login(ServiceRequest.AuthenticationRequest("John Doe", "   "))
+        val result = authService.login(ServiceRequest.AuthenticationRequest("John Doe", "   "))
         check(result.isLeft())
         check(result.fold({ customError -> customError is AuthenticationFailure.Unauthorized }, { false }))
     }
@@ -95,7 +96,7 @@ class LoginServiceTest {
     fun notActiveUserTest() {
         Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(UUID.randomUUID(), "John Doe", "foo", "USER", false))
         Mockito.`when`(encoder.matches(Mockito.anyString(), Mockito.anyString())).thenReturn(true)
-        val result = loginService.login(ServiceRequest.AuthenticationRequest("John Doe", "Test1234"))
+        val result = authService.login(ServiceRequest.AuthenticationRequest("John Doe", "Test1234"))
         check(result.isLeft())
         check(result.fold({ customError -> customError is AuthenticationFailure.Unauthorized }, { false }))
     }
@@ -105,8 +106,9 @@ class LoginServiceTest {
         val userId = UUID.randomUUID()
         Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(null)
         Mockito.`when`(userRepository.save(Mockito.any(User::class.java))).thenReturn(User(userId, "John Doe", "foo", "USER", true))
+        Mockito.`when`(encoder.encode(anyString())).thenReturn(anyString())
         val request = ServiceRequest.RegistrationRequest(username = "John Doe", password = "Test1234", authorities = "USER, ADMIN", active = true)
-        val result = loginService.register(request)
+        val result = authService.register(request)
         check(!result.isLeft())
         check(result.toString() == "John Doe")
     }
@@ -114,7 +116,7 @@ class LoginServiceTest {
     @Test
     fun registerUserTest_emptyUsername() {
         val request = ServiceRequest.RegistrationRequest(username = "", password = "test1234", authorities = "USER, ADMIN", active = true)
-        val result = loginService.register(request)
+        val result = authService.register(request)
         check(result.isLeft())
         check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyUsername }, { false }))
     }
@@ -122,7 +124,7 @@ class LoginServiceTest {
     @Test
     fun registerUserTest_blankUsername() {
         val request = ServiceRequest.RegistrationRequest(username = "   ", password = "test1234", authorities = "USER, ADMIN", active = true)
-        val result = loginService.register(request)
+        val result = authService.register(request)
         check(result.isLeft())
         check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyUsername }, { false }))
     }
@@ -130,7 +132,7 @@ class LoginServiceTest {
     @Test
     fun registerUserTest_emptyPassword() {
         val request = ServiceRequest.RegistrationRequest(username = "John Doe", password = "", authorities = "USER, ADMIN", active = true)
-        val result = loginService.register(request)
+        val result = authService.register(request)
         check(result.isLeft())
         check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyPassword }, { false }))
     }
@@ -138,7 +140,7 @@ class LoginServiceTest {
     @Test
     fun registerUserTest_blankPassword() {
         val request = ServiceRequest.RegistrationRequest(username = "John Doe", password = "   ", authorities = "USER, ADMIN", active = true)
-        val result = loginService.register(request)
+        val result = authService.register(request)
         check(result.isLeft())
         check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyPassword }, { false }))
     }
@@ -147,7 +149,7 @@ class LoginServiceTest {
     fun registerUserTest_usernameTaken() {
         Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(UUID.randomUUID(), "John Doe", "foo", "USER", false))
         val request = ServiceRequest.RegistrationRequest(username = "John Doe", password = "test1234", authorities = "USER, ADMIN", active = true)
-        val result = loginService.register(request)
+        val result = authService.register(request)
         check(result.isLeft())
         check(result.fold({ customError -> customError is RegistrationFailure.UsernameAlreadyUsed }, { false }))
     }
@@ -159,7 +161,7 @@ class LoginServiceTest {
         Mockito.`when`(userRepository.findById(Mockito.any(UUID::class.java))).thenReturn(Optional.of(User(userId, "John Doe", "foo", "USER", false)))
         Mockito.`when`(userRepository.save(Mockito.any(User::class.java))).thenReturn(User(userId, "John Doe", "foo", "USER", false))
         val request = ServiceRequest.PatchRequest(null, null, null, active = true)
-        val result = loginService.update(UUID.randomUUID(), request)
+        val result = authService.update(UUID.randomUUID(), request)
         check(!result.isLeft())
         check(result.toString() == "John Doe")
     }
@@ -167,7 +169,7 @@ class LoginServiceTest {
     @Test
     fun patchUserTest_emptyUsername() {
         val request = ServiceRequest.PatchRequest("", null, null, active = true)
-        val result = loginService.update(UUID.randomUUID(), request)
+        val result = authService.update(UUID.randomUUID(), request)
         check(result.isLeft())
         check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyUsername }, { false }))
     }
@@ -175,7 +177,7 @@ class LoginServiceTest {
     @Test
     fun patchUserTest_blankUsername() {
         val request = ServiceRequest.PatchRequest("   ", null, null, active = true)
-        val result = loginService.update(UUID.randomUUID(), request)
+        val result = authService.update(UUID.randomUUID(), request)
         check(result.isLeft())
         check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyUsername }, { false }))
     }
@@ -184,7 +186,7 @@ class LoginServiceTest {
     fun patchUserTest_usernameTaken() {
         Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(UUID.randomUUID(), "John Doe", "foo", "USER", false))
         val request = ServiceRequest.PatchRequest("John Doe", null, null, active = true)
-        val result = loginService.update(UUID.randomUUID(), request)
+        val result = authService.update(UUID.randomUUID(), request)
         check(result.isLeft())
         check(result.fold({ customError -> customError is RegistrationFailure.UsernameAlreadyUsed }, { false }))
     }
@@ -192,7 +194,7 @@ class LoginServiceTest {
     @Test
     fun patchUserTest_emptyPassword() {
         val request = ServiceRequest.PatchRequest(null, "", null, active = true)
-        val result = loginService.update(UUID.randomUUID(), request)
+        val result = authService.update(UUID.randomUUID(), request)
         check(result.isLeft())
         check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyPassword }, { false }))
     }
@@ -204,7 +206,7 @@ class LoginServiceTest {
         Mockito.`when`(userRepository.findById(Mockito.any(UUID::class.java))).thenReturn(Optional.of(User(userId, "John Doe", "foo", "USER", false)))
         Mockito.`when`(userRepository.save(Mockito.any(User::class.java))).thenReturn(User(userId, "John Doe", "foo", "USER", false))
         val request = ServiceRequest.PatchRequest(null, null, "", true)
-        val result = loginService.update(UUID.randomUUID(), request)
+        val result = authService.update(UUID.randomUUID(), request)
         check(!result.isLeft())
         check(result.toString() == "John Doe")
     }
@@ -216,7 +218,7 @@ class LoginServiceTest {
         Mockito.`when`(userRepository.findById(Mockito.any(UUID::class.java))).thenReturn(Optional.of(User(userId, "John Doe", "foo", "USER", false)))
         Mockito.`when`(userRepository.save(Mockito.any(User::class.java))).thenReturn(User(userId, "John Doe", "foo", "USER", false))
         val request = ServiceRequest.PatchRequest(null, null, "", true)
-        val result = loginService.update(UUID.randomUUID(), request)
+        val result = authService.update(UUID.randomUUID(), request)
         check(!result.isLeft())
         check(result.toString() == "John Doe")
     }
@@ -228,7 +230,7 @@ class LoginServiceTest {
         Mockito.`when`(userRepository.findById(Mockito.any(UUID::class.java))).thenReturn(Optional.of(User(userId, "John Doe", "foo", "USER", false)))
         Mockito.`when`(userRepository.save(Mockito.any(User::class.java))).thenReturn(User(userId, "John Doe", "foo", "USER", false))
         val request = ServiceRequest.PatchRequest(null, null, "USER, ADMIN", true)
-        val result = loginService.update(UUID.randomUUID(), request)
+        val result = authService.update(UUID.randomUUID(), request)
         check(!result.isLeft())
         check(result.toString() == "John Doe")
     }
@@ -240,7 +242,7 @@ class LoginServiceTest {
         Mockito.`when`(userRepository.findById(Mockito.any(UUID::class.java))).thenReturn(Optional.of(User(userId, "John Doe", "foo", "USER", false)))
         Mockito.`when`(userRepository.save(Mockito.any(User::class.java))).thenReturn(User(userId, "John Doe", "foo", "USER", false))
         val request = ServiceRequest.PatchRequest(null, null, "USER, ADMIN, TEST", true)
-        val result = loginService.update(UUID.randomUUID(), request)
+        val result = authService.update(UUID.randomUUID(), request)
         check(result.isLeft())
         check(result.fold({ customError -> customError is ValidationFailure.InvalidRequest }, { false }))
     }
@@ -252,7 +254,7 @@ class LoginServiceTest {
         Mockito.`when`(userRepository.findById(Mockito.any(UUID::class.java))).thenReturn(Optional.of(User(userId, "John Doe", "foo", "USER", true)))
         Mockito.`when`(userRepository.save(Mockito.any(User::class.java))).thenReturn(User(userId, "John Doe", "foo", "USER", false))
         val request = ServiceRequest.PatchRequest(null, null, null, false)
-        val result = loginService.update(UUID.randomUUID(), request)
+        val result = authService.update(UUID.randomUUID(), request)
         check(!result.isLeft())
         check(result.toString() == "John Doe")
     }

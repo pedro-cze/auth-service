@@ -45,6 +45,7 @@ dependencies {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
     testImplementation("org.springframework.security:spring-security-test")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.8.0")
 }
 
 dependencyManagement {
