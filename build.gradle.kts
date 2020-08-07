@@ -88,7 +88,7 @@ tasks.generateJacocoBadge {
     dependsOn(tasks.jacocoTestReport)
     jacocoBadgeGenSetting {
         jacocoReportPath = "$buildDir/reports/jacoco/test/jacocoTestReport.xml"
-        readmePath = "${projectDir}/README.md"
+        readmePath = "$projectDir/README.md"
     }
 }
 
