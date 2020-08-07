@@ -31,13 +31,10 @@ class AuthControllerTest {
 
     @Autowired
     lateinit var okHttpClient: OkHttpClient
-
     @Autowired
     lateinit var authService: AuthService
-
     @Autowired
     lateinit var tokenGenerationService: TokenGenerationService
-
     @Autowired
     lateinit var userRepository: UserRepository
 

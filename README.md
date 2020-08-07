@@ -1,6 +1,7 @@
 # auth-service 
 
-[![Build Status](https://travis-ci.com/pedro-cze/auth-service.svg?token=EvkxjVyDZp6WYVbjE5Ke&branch=master)](https://travis-ci.com/pedro-cze/auth-service) ![LINE](https://img.shields.io/badge/line--coverage-66%25-yellow.svg)
+[![Build Status](https://travis-ci.com/pedro-cze/auth-service.svg?token=EvkxjVyDZp6WYVbjE5Ke&branch=master)](https://travis-ci.com/pedro-cze/auth-service)
+![LINE](https://img.shields.io/badge/line--coverage-86%25-brightgreen.svg)
 
 Authentication service using spring boot written in Kotlin
 
