@@ -25,12 +25,12 @@ class ValidationServiceImpl(
     }
 
     private fun authenticationStrategy(request: ServiceRequest): Either<GeneralFailure, ServiceRequest> {
-        return checkUsernameNotEmpty(request)
+        return checkUsernameNotEmpty(request, "Null or empty username")
     }
 
     private fun registrationStrategy(request: ServiceRequest): Either<GeneralFailure, ServiceRequest> {
-        return checkUsernameNotEmpty(request)
-                .flatMap { checkPasswordNotEmptyOrNull(request) }
+        return checkUsernameNotEmpty(request, "Null or empty username")
+                .flatMap { checkPasswordNotEmptyOrNull(request, "Null or empty password") }
                 .flatMap { checkAuthoritiesValid(request) }
                 .flatMap { checkUsernameNotTaken(request) }
     }
@@ -76,11 +76,11 @@ class ValidationServiceImpl(
         return ServiceAuthority.ADMIN.name == token || ServiceAuthority.USER.name == token
     }
 
-    private fun checkUsernameNotEmpty(request: ServiceRequest): Either<GeneralFailure, ServiceRequest> {
+    private fun checkUsernameNotEmpty(request: ServiceRequest, errorMessage: String): Either<GeneralFailure, ServiceRequest> {
         return if (request.username != null && request.username!!.isNotBlank()) {
             Either.right(request)
         } else {
-            Either.left(ValidationFailure.NullOrEmptyUsername())
+            Either.left(ValidationFailure.NullOrEmptyUsername(errorMessage))
         }
     }
 
@@ -88,7 +88,7 @@ class ValidationServiceImpl(
         return if (request.username == null) {
             Either.right(request)
         } else {
-            checkUsernameNotEmpty(request)
+            checkUsernameNotEmpty(request, "Empty username")
         }
     }
 
@@ -109,11 +109,11 @@ class ValidationServiceImpl(
         }
     }
 
-    private fun checkPasswordNotEmptyOrNull(request: ServiceRequest): Either<GeneralFailure, ServiceRequest> {
+    private fun checkPasswordNotEmptyOrNull(request: ServiceRequest, errorMessage: String): Either<GeneralFailure, ServiceRequest> {
         return if (request.password != null && request.password!!.isNotBlank()) {
             Either.right(request)
         } else {
-            Either.left(ValidationFailure.NullOrEmptyPassword())
+            Either.left(ValidationFailure.NullOrEmptyPassword(errorMessage))
         }
     }
 
@@ -121,7 +121,7 @@ class ValidationServiceImpl(
         return if (request.password == null) {
             Either.right(request)
         } else {
-            checkPasswordNotEmptyOrNull(request)
+            checkPasswordNotEmptyOrNull(request, "Empty password")
         }
     }
 }

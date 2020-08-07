@@ -1,0 +1,6 @@
+{
+  "username": "John Doe",
+  "password": "Test1234",
+  "authorities": "ADMIN",
+  "active": true
+}
