@@ -13,7 +13,7 @@ plugins {
 }
 
 group = "cz.pedro"
-version = "0.0.1-SNAPSHOT"
+version = "1.0"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 val developmentOnly by configurations.creating

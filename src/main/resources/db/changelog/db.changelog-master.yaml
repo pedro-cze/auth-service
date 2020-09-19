@@ -8,8 +8,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: integer
-                  autoIncrement: true
+                  type: uuid
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -42,7 +41,7 @@ databaseChangeLog:
            columns:
             - column:
                 name: id
-                value: 1
+                valueComputed: uuid_generate_v4()
             - column:
                 name: username
                 value: admin
