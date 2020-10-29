@@ -1,14 +1,18 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/users-test
-    username: auth-docker
+    url: jdbc:postgresql://localhost:5432/users
+    username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: none
     show-sql: true
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.yaml
+  cloud:
+    consul:
+      discovery:
+        health-check-path: /actuator/health
 server:
-  port: 8093
+  port: 8083
