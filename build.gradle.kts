@@ -39,6 +39,7 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-consul-config")
     implementation("com.auth0:java-jwt:3.4.0")
     implementation("org.liquibase:liquibase-core")
+    implementation("com.h2database:h2:1.4.200")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
