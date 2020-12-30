@@ -13,7 +13,7 @@ plugins {
 }
 
 group = "cz.pedro"
-version = "0.0.1-SNAPSHOT"
+version = "1.0"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 val developmentOnly by configurations.creating
@@ -36,7 +36,11 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("org.springframework.cloud:spring-cloud-starter-consul-config")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.cloud:spring-cloud-starter-openfeign:2.2.2.RELEASE")
+    implementation("org.springframework.cloud:spring-cloud-starter-netflix-ribbon:2.2.2.RELEASE")
+    implementation("org.springframework.cloud:spring-cloud-starter-consul-config:2.2.2.RELEASE")
+    implementation("org.springframework.cloud:spring-cloud-starter-consul-discovery:2.2.2.RELEASE")
     implementation("com.auth0:java-jwt:3.4.0")
     implementation("org.liquibase:liquibase-core")
     implementation("com.h2database:h2:1.4.200")
@@ -45,6 +49,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
+    testImplementation("com.h2database:h2")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.8.0")
 }

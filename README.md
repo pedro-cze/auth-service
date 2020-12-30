@@ -14,3 +14,11 @@ Registration is only allowed to user with admin rights.
 
 ### Database
 The service uses Postgres as its primary datasource.
+
+### Docker
+To build and run the service in container fire following commands.
+- `docker build -t pedro_cze/auth_service .`
+- `cd ./docker && docker-compose up -d`
+
+After that the service is exposed on port `8083`.
+

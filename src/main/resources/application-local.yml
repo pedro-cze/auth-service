@@ -1,4 +1,11 @@
 spring:
+  cloud:
+    consul:
+      discovery:
+        health-check-path: /actuator/health
+
+  application:
+    name: auth-service
   datasource:
     url: jdbc:postgresql://localhost:5432/users
     username: postgres
@@ -10,6 +17,9 @@ spring:
     show-sql: true
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.yaml
-
 server:
   port: 8083
+
+management:
+  server:
+    port: 4453

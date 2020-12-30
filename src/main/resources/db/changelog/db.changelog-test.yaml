@@ -36,21 +36,21 @@ databaseChangeLog:
       id: 2
       author: PK
       changes:
-       - insert:
-           tableName: auth_user
-           columns:
-            - column:
-                name: id
-                valueComputed: uuid_generate_v4()
-            - column:
-                name: username
-                value: admin
-            - column:
-                name: password
-                value: $2a$10$d8LjAzX1YPnXp93puYNmruwTrBu8aC.Fka7mx2qazmD.igN5ZjzCC
-            - column:
-                name: authorities
-                value: ADMIN
-            - column:
-                name: active
-                value: true
+        - insert:
+            tableName: auth_user
+            columns:
+              - column:
+                  name: id
+                  valueComputed: random_uuid()
+              - column:
+                  name: username
+                  value: admin
+              - column:
+                  name: password
+                  value: $2a$10$d8LjAzX1YPnXp93puYNmruwTrBu8aC.Fka7mx2qazmD.igN5ZjzCC
+              - column:
+                  name: authorities
+                  value: ADMIN
+              - column:
+                  name: active
+                  value: true

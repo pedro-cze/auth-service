@@ -17,17 +17,21 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
 import java.io.File
 import java.util.UUID
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @RunWith(SpringRunner::class)
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AuthControllerTest {
+
+    @LocalServerPort
+    lateinit var port: String
 
     @Autowired
     lateinit var okHttpClient: OkHttpClient
@@ -51,7 +55,7 @@ class AuthControllerTest {
                     .post(RequestBody.create(MediaType.parse("application/json"), FileLoader.loadFile("login/loginRequest_successful.json")
                             ?: File("")))
                     .addHeader("Content-Type", "application/json")
-                    .url(HttpUrl.get("http://localhost:8083/auth/login"))
+                    .url(HttpUrl.get("http://localhost:$port/auth/login"))
                     .build()
             val response = okHttpClient.newCall(request).execute()
             check(response.code() == HttpStatus.OK.value())
@@ -64,7 +68,7 @@ class AuthControllerTest {
                     .post(RequestBody.create(MediaType.parse("application/json"), FileLoader.loadFile("login/loginRequest_wrongPassword.json")
                             ?: File("")))
                     .addHeader("Content-Type", "application/json")
-                    .url(HttpUrl.get("http://localhost:8083/auth/login"))
+                    .url(HttpUrl.get("http://localhost:$port/auth/login"))
                     .build()
             val response = okHttpClient.newCall(request).execute()
             check(response.code() == HttpStatus.UNAUTHORIZED.value())
@@ -78,7 +82,7 @@ class AuthControllerTest {
                     .post(RequestBody.create(MediaType.parse("application/json"), FileLoader.loadFile("login/loginRequest_emptyPassword.json")
                             ?: File("")))
                     .addHeader("Content-Type", "application/json")
-                    .url(HttpUrl.get("http://localhost:8083/auth/login"))
+                    .url(HttpUrl.get("http://localhost:$port/auth/login"))
                     .build()
             val response = okHttpClient.newCall(request).execute()
             check(response.code() == HttpStatus.UNAUTHORIZED.value())
@@ -92,7 +96,7 @@ class AuthControllerTest {
                     .post(RequestBody.create(MediaType.parse("application/json"), FileLoader.loadFile("login/loginRequest_nullPassword.json")
                             ?: File("")))
                     .addHeader("Content-Type", "application/json")
-                    .url(HttpUrl.get("http://localhost:8083/auth/login"))
+                    .url(HttpUrl.get("http://localhost:$port/auth/login"))
                     .build()
             val response = okHttpClient.newCall(request).execute()
             check(response.code() == HttpStatus.BAD_REQUEST.value())
@@ -104,7 +108,7 @@ class AuthControllerTest {
                     .post(RequestBody.create(MediaType.parse("application/json"), FileLoader.loadFile("login/loginRequest_blankPassword.json")
                             ?: File("")))
                     .addHeader("Content-Type", "application/json")
-                    .url(HttpUrl.get("http://localhost:8083/auth/login"))
+                    .url(HttpUrl.get("http://localhost:$port/auth/login"))
                     .build()
             val response = okHttpClient.newCall(request).execute()
             check(response.code() == HttpStatus.UNAUTHORIZED.value())
@@ -118,7 +122,7 @@ class AuthControllerTest {
                     .post(RequestBody.create(MediaType.parse("application/json"), FileLoader.loadFile("login/loginRequest_emptyUsername.json")
                             ?: File("")))
                     .addHeader("Content-Type", "application/json")
-                    .url(HttpUrl.get("http://localhost:8083/auth/login"))
+                    .url(HttpUrl.get("http://localhost:$port/auth/login"))
                     .build()
             val response = okHttpClient.newCall(request).execute()
             check(response.code() == HttpStatus.UNAUTHORIZED.value())
@@ -132,7 +136,7 @@ class AuthControllerTest {
                     .post(RequestBody.create(MediaType.parse("application/json"), FileLoader.loadFile("login/loginRequest_nullUsername.json")
                             ?: File("")))
                     .addHeader("Content-Type", "application/json")
-                    .url(HttpUrl.get("http://localhost:8083/auth/login"))
+                    .url(HttpUrl.get("http://localhost:$port/auth/login"))
                     .build()
             val response = okHttpClient.newCall(request).execute()
             check(response.code() == HttpStatus.BAD_REQUEST.value())
@@ -144,7 +148,7 @@ class AuthControllerTest {
                     .post(RequestBody.create(MediaType.parse("application/json"), FileLoader.loadFile("login/loginRequest_blankUsername.json")
                             ?: File("")))
                     .addHeader("Content-Type", "application/json")
-                    .url(HttpUrl.get("http://localhost:8083/auth/login"))
+                    .url(HttpUrl.get("http://localhost:$port/auth/login"))
                     .build()
             val response = okHttpClient.newCall(request).execute()
             check(response.code() == HttpStatus.UNAUTHORIZED.value())
@@ -170,7 +174,7 @@ class AuthControllerTest {
                                 ?: File("")))
                         .addHeader("Content-Type", "application/json")
                         .addHeader("Authentication", token)
-                        .url(HttpUrl.get("http://localhost:8083/auth/new"))
+                        .url(HttpUrl.get("http://localhost:$port/auth/new"))
                         .build()
 
                 val response = okHttpClient.newCall(request).execute()
@@ -190,7 +194,7 @@ class AuthControllerTest {
                                 ?: File("")))
                         .addHeader("Content-Type", "application/json")
                         .addHeader("Authentication", token)
-                        .url(HttpUrl.get("http://localhost:8083/auth/new"))
+                        .url(HttpUrl.get("http://localhost:$port/auth/new"))
                         .build()
 
                 val response = okHttpClient.newCall(request).execute()
@@ -210,7 +214,7 @@ class AuthControllerTest {
                                 ?: File("")))
                         .addHeader("Content-Type", "application/json")
                         .addHeader("Authentication", token)
-                        .url(HttpUrl.get("http://localhost:8083/auth/new"))
+                        .url(HttpUrl.get("http://localhost:$port/auth/new"))
                         .build()
 
                 val response = okHttpClient.newCall(request).execute()
@@ -229,7 +233,7 @@ class AuthControllerTest {
                                 ?: File("")))
                         .addHeader("Content-Type", "application/json")
                         .addHeader("Authentication", token)
-                        .url(HttpUrl.get("http://localhost:8083/auth/new"))
+                        .url(HttpUrl.get("http://localhost:$port/auth/new"))
                         .build()
 
                 val response = okHttpClient.newCall(request).execute()
@@ -249,7 +253,7 @@ class AuthControllerTest {
                                 ?: File("")))
                         .addHeader("Content-Type", "application/json")
                         .addHeader("Authentication", token)
-                        .url(HttpUrl.get("http://localhost:8083/auth/new"))
+                        .url(HttpUrl.get("http://localhost:$port/auth/new"))
                         .build()
 
                 val response = okHttpClient.newCall(request).execute()
@@ -269,7 +273,7 @@ class AuthControllerTest {
                                 ?: File("")))
                         .addHeader("Content-Type", "application/json")
                         .addHeader("Authentication", token)
-                        .url(HttpUrl.get("http://localhost:8083/auth/new"))
+                        .url(HttpUrl.get("http://localhost:$port/auth/new"))
                         .build()
 
                 val response = okHttpClient.newCall(request).execute()
@@ -289,7 +293,7 @@ class AuthControllerTest {
                                 ?: File("")))
                         .addHeader("Content-Type", "application/json")
                         .addHeader("Authentication", token)
-                        .url(HttpUrl.get("http://localhost:8083/auth/new"))
+                        .url(HttpUrl.get("http://localhost:$port/auth/new"))
                         .build()
 
                 val response = okHttpClient.newCall(request).execute()
@@ -309,7 +313,7 @@ class AuthControllerTest {
                                 ?: File("")))
                         .addHeader("Content-Type", "application/json")
                         .addHeader("Authentication", token)
-                        .url(HttpUrl.get("http://localhost:8083/auth/new"))
+                        .url(HttpUrl.get("http://localhost:$port/auth/new"))
                         .build()
 
                 val response = okHttpClient.newCall(request).execute()
@@ -328,7 +332,7 @@ class AuthControllerTest {
                                 ?: File("")))
                         .addHeader("Content-Type", "application/json")
                         .addHeader("Authentication", token)
-                        .url(HttpUrl.get("http://localhost:8083/auth/new"))
+                        .url(HttpUrl.get("http://localhost:$port/auth/new"))
                         .build()
 
                 val response = okHttpClient.newCall(request).execute()
@@ -355,7 +359,7 @@ class AuthControllerTest {
                                     ?: File("")))
                             .addHeader("Content-Type", "application/json")
                             .addHeader("Authentication", token)
-                            .url(HttpUrl.get("http://localhost:8083/auth/new"))
+                            .url(HttpUrl.get("http://localhost:$port/auth/new"))
                             .build()
 
                     val response = okHttpClient.newCall(request).execute()
@@ -387,7 +391,7 @@ class AuthControllerTest {
                                     ?: File("")))
                             .addHeader("Content-Type", "application/json")
                             .addHeader("Authentication", token)
-                            .url(HttpUrl.get("http://localhost:8083/auth/update/${uuid?.toString()}"))
+                            .url(HttpUrl.get("http://localhost:$port/auth/update/${uuid?.toString()}"))
                             .build()
 
                     val response = okHttpClient.newCall(request).execute()
@@ -413,7 +417,7 @@ class AuthControllerTest {
                                     ?: File("")))
                             .addHeader("Content-Type", "application/json")
                             .addHeader("Authentication", token)
-                            .url(HttpUrl.get("http://localhost:8083/auth/update/${uuid?.toString()}"))
+                            .url(HttpUrl.get("http://localhost:$port/auth/update/${uuid?.toString()}"))
                             .build()
 
                     val response = okHttpClient.newCall(request).execute()
@@ -435,7 +439,7 @@ class AuthControllerTest {
                                     ?: File("")))
                             .addHeader("Content-Type", "application/json")
                             .addHeader("Authentication", token)
-                            .url(HttpUrl.get("http://localhost:8083/auth/update/${uuid?.toString()}"))
+                            .url(HttpUrl.get("http://localhost:$port/auth/update/${uuid?.toString()}"))
                             .build()
 
                     val response = okHttpClient.newCall(request).execute()
@@ -460,7 +464,7 @@ class AuthControllerTest {
                                     ?: File("")))
                             .addHeader("Content-Type", "application/json")
                             .addHeader("Authentication", token)
-                            .url(HttpUrl.get("http://localhost:8083/auth/update/${uuid?.toString()}"))
+                            .url(HttpUrl.get("http://localhost:$port/auth/update/${uuid?.toString()}"))
                             .build()
 
                     val response = okHttpClient.newCall(request).execute()
@@ -485,7 +489,7 @@ class AuthControllerTest {
                                     ?: File("")))
                             .addHeader("Content-Type", "application/json")
                             .addHeader("Authentication", token)
-                            .url(HttpUrl.get("http://localhost:8083/auth/update/${uuid?.toString()}"))
+                            .url(HttpUrl.get("http://localhost:$port/auth/update/${uuid?.toString()}"))
                             .build()
 
                     val response = okHttpClient.newCall(request).execute()
@@ -510,7 +514,7 @@ class AuthControllerTest {
                                     ?: File("")))
                             .addHeader("Content-Type", "application/json")
                             .addHeader("Authentication", token)
-                            .url(HttpUrl.get("http://localhost:8083/auth/update/${uuid?.toString()}"))
+                            .url(HttpUrl.get("http://localhost:$port/auth/update/${uuid?.toString()}"))
                             .build()
 
                     val response = okHttpClient.newCall(request).execute()
@@ -533,7 +537,7 @@ class AuthControllerTest {
                                     ?: File("")))
                             .addHeader("Content-Type", "application/json")
                             .addHeader("Authentication", token)
-                            .url(HttpUrl.get("http://localhost:8083/auth/update/${uuid?.toString()}"))
+                            .url(HttpUrl.get("http://localhost:$port/auth/update/${uuid?.toString()}"))
                             .build()
 
                     val response = okHttpClient.newCall(request).execute()
@@ -566,7 +570,7 @@ class AuthControllerTest {
                                     ?: File("")))
                             .addHeader("Content-Type", "application/json")
                             .addHeader("Authentication", token)
-                            .url(HttpUrl.get("http://localhost:8083/auth/update/${uuid?.toString()}"))
+                            .url(HttpUrl.get("http://localhost:$port/auth/update/${uuid?.toString()}"))
                             .build()
 
                     val response = okHttpClient.newCall(request).execute()
@@ -586,7 +590,7 @@ class AuthControllerTest {
                                     ?: File("")))
                             .addHeader("Content-Type", "application/json")
                             .addHeader("Authentication", token)
-                            .url(HttpUrl.get("http://localhost:8083/auth/update/${uuid?.toString()}"))
+                            .url(HttpUrl.get("http://localhost:$port/auth/update/${uuid?.toString()}"))
                             .build()
 
                     val response = okHttpClient.newCall(request).execute()
@@ -606,7 +610,7 @@ class AuthControllerTest {
                                     ?: File("")))
                             .addHeader("Content-Type", "application/json")
                             .addHeader("Authentication", token)
-                            .url(HttpUrl.get("http://localhost:8083/auth/update/${uuid?.toString()}"))
+                            .url(HttpUrl.get("http://localhost:$port/auth/update/${uuid?.toString()}"))
                             .build()
 
                     val response = okHttpClient.newCall(request).execute()
@@ -626,7 +630,7 @@ class AuthControllerTest {
                                     ?: File("")))
                             .addHeader("Content-Type", "application/json")
                             .addHeader("Authentication", token)
-                            .url(HttpUrl.get("http://localhost:8083/auth/update/${uuid?.toString()}"))
+                            .url(HttpUrl.get("http://localhost:$port/auth/update/${uuid?.toString()}"))
                             .build()
 
                     val response = okHttpClient.newCall(request).execute()
@@ -649,7 +653,7 @@ class AuthControllerTest {
                                     ?: File("")))
                             .addHeader("Content-Type", "application/json")
                             .addHeader("Authentication", token)
-                            .url(HttpUrl.get("http://localhost:8083/auth/update/${uuid?.toString()}"))
+                            .url(HttpUrl.get("http://localhost:$port/auth/update/${uuid?.toString()}"))
                             .build()
 
                     val response = okHttpClient.newCall(request).execute()
