@@ -20,10 +20,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 class WebSecurityConfiguration : WebSecurityConfigurerAdapter() {
 
     override fun configure(http: HttpSecurity?) {
-        http?.csrf()?.disable()?.sessionManagement()?.sessionCreationPolicy(SessionCreationPolicy.STATELESS)?.and()
+        http?.cors()?.and()?.csrf()?.disable()?.sessionManagement()?.sessionCreationPolicy(SessionCreationPolicy.STATELESS)?.and()
                 ?.addFilter(AuthorizationFilter(authenticationManager(), userDetailsService() as AuthorizationService))
                 ?.authorizeRequests()
                 ?.antMatchers(HttpMethod.POST, "/auth/login")?.permitAll()
+                ?.antMatchers(HttpMethod.GET, "/actuator/health")?.permitAll()
                 ?.antMatchers(HttpMethod.POST, "/auth/new")?.hasRole("ADMIN")
                 ?.antMatchers(HttpMethod.PATCH, "/admin/update/*")?.hasRole("ADMIN")
                 ?.anyRequest()?.authenticated()

@@ -1,0 +1,56 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: PK
+      changes:
+        - createTable:
+            tableName: auth_user
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: username
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: password
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: authorities
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: active
+                  type: boolean
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 2
+      author: PK
+      changes:
+        - insert:
+            tableName: auth_user
+            columns:
+              - column:
+                  name: id
+                  valueComputed: random_uuid()
+              - column:
+                  name: username
+                  value: admin
+              - column:
+                  name: password
+                  value: $2a$10$d8LjAzX1YPnXp93puYNmruwTrBu8aC.Fka7mx2qazmD.igN5ZjzCC
+              - column:
+                  name: authorities
+                  value: ADMIN
+              - column:
+                  name: active
+                  value: true
