@@ -25,6 +25,7 @@ class WebSecurityConfiguration : WebSecurityConfigurerAdapter() {
                 ?.authorizeRequests()
                 ?.antMatchers(HttpMethod.POST, "/auth/login")?.permitAll()
                 ?.antMatchers(HttpMethod.POST, "/session/login")?.permitAll()
+                ?.antMatchers(HttpMethod.DELETE , "/session/invalidate")?.permitAll()
                 ?.antMatchers(HttpMethod.GET, "/actuator/health")?.permitAll()
                 ?.antMatchers(HttpMethod.POST, "/auth/new")?.hasRole("ADMIN")
                 ?.antMatchers(HttpMethod.PATCH, "/admin/update/*")?.hasRole("ADMIN")
