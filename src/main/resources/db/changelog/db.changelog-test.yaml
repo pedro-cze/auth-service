@@ -54,3 +54,31 @@ databaseChangeLog:
               - column:
                   name: active
                   value: true
+  - changeSet:
+      id: 3
+      author: PK
+      changes:
+        - createTable:
+            tableName: session_object
+            columns:
+              - column:
+                  name: session_id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: username
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: app_id
+                  type: varchar(255)
+                  constraints:
+                    nullable: false

@@ -7,6 +7,7 @@ import cz.pedro.auth.error.RegistrationFailure
 import cz.pedro.auth.error.ValidationFailure
 import cz.pedro.auth.repository.UserRepository
 import cz.pedro.auth.service.ValidationService
+import cz.pedro.auth.util.AppId
 import cz.pedro.auth.util.Either
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -18,10 +19,17 @@ class ValidationServiceImpl(
 
     override fun validate(request: ServiceRequest): Either<GeneralFailure, ServiceRequest> {
         return when (request) {
+            is ServiceRequest.SessionRequest -> sessionStrategy(request)
             is ServiceRequest.AuthenticationRequest -> authenticationStrategy(request)
             is ServiceRequest.RegistrationRequest -> registrationStrategy(request)
             else -> patchStrategy(request)
         }
+    }
+
+    private fun sessionStrategy(request: ServiceRequest): Either<GeneralFailure, ServiceRequest> {
+        return checkAppIdIsNull(request)
+                .flatMap { checkAppIdExists(it) }
+                .flatMap { checkUsernameNotEmpty(it, "Null or empty username") }
     }
 
     private fun authenticationStrategy(request: ServiceRequest): Either<GeneralFailure, ServiceRequest> {
@@ -40,6 +48,22 @@ class ValidationServiceImpl(
                 .flatMap { checkPasswordIfPresent(request) }
                 .flatMap { checkAuthoritiesIfPresent(request) }
                 .flatMap { checkUsernameNotTakenIfPresent(request) }
+    }
+
+    private fun checkAppIdIsNull(request: ServiceRequest): Either<GeneralFailure, ServiceRequest> {
+        return if (request.appId == null) {
+            Either.left(ValidationFailure.MissingAppId())
+        } else {
+            Either.right(request)
+        }
+    }
+
+    private fun checkAppIdExists(request: ServiceRequest): Either<GeneralFailure, ServiceRequest> {
+        val appId: String = request.appId ?: return Either.left(ValidationFailure.MissingAppId())
+        if (AppId.values().find { it.name == appId } == null) {
+            return Either.left(ValidationFailure.InvalidAppId())
+        }
+        return Either.right(request)
     }
 
     private fun checkAuthoritiesValid(request: ServiceRequest): Either<GeneralFailure, ServiceRequest> {
