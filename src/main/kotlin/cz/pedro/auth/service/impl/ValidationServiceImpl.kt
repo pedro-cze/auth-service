@@ -2,11 +2,11 @@ package cz.pedro.auth.service.impl
 
 import cz.pedro.auth.data.ServiceRequest
 import cz.pedro.auth.entity.ServiceAuthority
-import cz.pedro.auth.error.GeneralFailure
-import cz.pedro.auth.error.RegistrationFailure
-import cz.pedro.auth.error.ValidationFailure
+import cz.pedro.auth.entity.User
+import cz.pedro.auth.error.*
 import cz.pedro.auth.repository.UserRepository
 import cz.pedro.auth.service.ValidationService
+import cz.pedro.auth.util.AppId
 import cz.pedro.auth.util.Either
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -18,18 +18,28 @@ class ValidationServiceImpl(
 
     override fun validate(request: ServiceRequest): Either<GeneralFailure, ServiceRequest> {
         return when (request) {
+            is ServiceRequest.SessionRequest -> sessionStrategy(request)
             is ServiceRequest.AuthenticationRequest -> authenticationStrategy(request)
             is ServiceRequest.RegistrationRequest -> registrationStrategy(request)
             else -> patchStrategy(request)
         }
     }
 
+    private fun sessionStrategy(request: ServiceRequest): Either<GeneralFailure, ServiceRequest> {
+        return checkAppIdIsNotNull(request)
+                .flatMap { checkAppIdExists(it) }
+                .flatMap { checkUsernameNotEmpty(it, "Null or empty username") }
+    }
+
     private fun authenticationStrategy(request: ServiceRequest): Either<GeneralFailure, ServiceRequest> {
         return checkUsernameNotEmpty(request, "Null or empty username")
+            .flatMap { checkAppIdIsNotNull(request) }
+            .flatMap { checkAppIdExists(request) }
     }
 
     private fun registrationStrategy(request: ServiceRequest): Either<GeneralFailure, ServiceRequest> {
         return checkUsernameNotEmpty(request, "Null or empty username")
+                .flatMap { checkAppIdExists(request) }
                 .flatMap { checkPasswordNotEmptyOrNull(request, "Null or empty password") }
                 .flatMap { checkAuthoritiesValid(request) }
                 .flatMap { checkUsernameNotTaken(request) }
@@ -39,7 +49,24 @@ class ValidationServiceImpl(
         return checkUsernameIfPresent(request)
                 .flatMap { checkPasswordIfPresent(request) }
                 .flatMap { checkAuthoritiesIfPresent(request) }
-                .flatMap { checkUsernameNotTakenIfPresent(request) }
+                .flatMap { checkAppId(request) }
+                .flatMap { checkUsernameNotTakenPatch(request) }
+    }
+
+    private fun checkAppIdIsNotNull(request: ServiceRequest): Either<GeneralFailure, ServiceRequest> {
+        return if (request.appId == null) {
+            Either.left(ValidationFailure.MissingAppId())
+        } else {
+            Either.right(request)
+        }
+    }
+
+    private fun checkAppIdExists(request: ServiceRequest): Either<GeneralFailure, ServiceRequest> {
+        val appId: String = request.appId ?: return Either.left(ValidationFailure.MissingAppId())
+        if (AppId.values().find { it.name == appId } == null) {
+            return Either.left(ValidationFailure.InvalidAppId())
+        }
+        return Either.right(request)
     }
 
     private fun checkAuthoritiesValid(request: ServiceRequest): Either<GeneralFailure, ServiceRequest> {
@@ -93,10 +120,26 @@ class ValidationServiceImpl(
     }
 
     private fun checkUsernameNotTaken(request: ServiceRequest): Either<GeneralFailure, ServiceRequest> {
-        if (request.username != null) {
-            if (userRepository.findByUsername(request.username!!) != null) {
-                return Either.left(RegistrationFailure.UsernameAlreadyUsed()) // TODO is checked also during patch
+        request.username?.let { username ->
+            request.appId?.let { appId ->
+                val user = userRepository.findByUsernameAndServiceName(username, appId)
+                user?.let {
+                    return Either.left(RegistrationFailure.UsernameAlreadyUsed())
+                }
+                return Either.right(request)
             }
+            return Either.left(MissingAppId())
+        }
+        return Either.left(ValidationFailure.InvalidRequest("Missing username."))
+    }
+
+    private fun checkUsernameNotTakenPatch(request: ServiceRequest): Either<GeneralFailure, ServiceRequest> {
+        request.username?.let { username ->
+            val user = userRepository.findByUsername(username)
+            user?.let {
+                return Either.left(RegistrationFailure.UsernameAlreadyUsed())
+            }
+            return Either.right(request)
         }
         return Either.right(request)
     }
@@ -123,5 +166,12 @@ class ValidationServiceImpl(
         } else {
             checkPasswordNotEmptyOrNull(request, "Empty password")
         }
+    }
+
+    private fun checkAppId(request: ServiceRequest): Either<GeneralFailure, ServiceRequest> {
+        request.appId?.let {
+            return Either.left(PatchFailure.AppIdPatchFailure())
+        }
+        return Either.right(request)
     }
 }

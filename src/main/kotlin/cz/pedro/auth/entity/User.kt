@@ -13,6 +13,7 @@ data class User(
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
         var id: UUID? = null,
+        var serviceName: String,
         var username: String,
         var password: String,
         var authorities: String,

@@ -46,7 +46,7 @@ class AuthControllerTest {
     inner class Login {
 
         init {
-            authService.register(ServiceRequest.RegistrationRequest("John Doe", "Test1234", "ADMIN", true))
+            authService.register(ServiceRequest.RegistrationRequest("INVOICE_APP", "John Doe", "Test1234", "ADMIN", true))
         }
 
         @Test
@@ -161,12 +161,12 @@ class AuthControllerTest {
     inner class Registration {
 
         init {
-            authService.register(ServiceRequest.RegistrationRequest("John Doe", "Test1234", "ADMIN", true))
+            authService.register(ServiceRequest.RegistrationRequest("INVOICE_APP", "John Doe", "Test1234", "ADMIN", true))
         }
 
         @Test
         fun `login as admin and successful registration`() {
-            val admin = userRepository.findByUsername("John Doe")
+            val admin = userRepository.findByUsernameAndServiceName("John Doe", "INVOICE_APP")
             admin?.let {
                 val token = tokenGenerationService.generateToken(AuthRequester(admin))
                 val request = Request.Builder()
@@ -346,7 +346,7 @@ class AuthControllerTest {
         inner class RegisterAsUser {
 
             init {
-                authService.register(ServiceRequest.RegistrationRequest("John User", "Test1234", "USER", true))
+                authService.register(ServiceRequest.RegistrationRequest("INVOICE_APP", "John User", "Test1234", "USER", true))
             }
 
             @Test
@@ -376,8 +376,8 @@ class AuthControllerTest {
         inner class SuccessfulScenarios {
 
             init {
-                authService.register(ServiceRequest.RegistrationRequest("John Doe", "Test1234", "ADMIN", true))
-                authService.register(ServiceRequest.RegistrationRequest("Elliot Alderson", "Test1234", "USER", true))
+                authService.register(ServiceRequest.RegistrationRequest("INVOICE_APP", "John Doe", "Test1234", "ADMIN", true))
+                authService.register(ServiceRequest.RegistrationRequest("INVOICE_APP", "Elliot Alderson", "Test1234", "USER", true))
             }
 
             @Test
@@ -555,8 +555,8 @@ class AuthControllerTest {
         inner class ErrorScenarios {
 
             init {
-                authService.register(ServiceRequest.RegistrationRequest("John Doe", "Test1234", "ADMIN", true))
-                authService.register(ServiceRequest.RegistrationRequest("Elliot Alderson", "Test1234", "USER", true))
+                authService.register(ServiceRequest.RegistrationRequest("INVOICE_APP", "John Doe", "Test1234", "ADMIN", true))
+                authService.register(ServiceRequest.RegistrationRequest("INVOICE_APP", "Elliot Alderson", "Test1234", "USER", true))
             }
 
             @Test

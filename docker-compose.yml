@@ -2,9 +2,10 @@ version: '3'
 services:
 
   auth:
-    image: pedro_cze/auth_service
-    container_name: auth.pedro_cze
-    hostname: auth.pedro_cze
+    build: .
+    image: speedro/auth_service
+    container_name: auth.speedro
+    hostname: auth.speedro
     ports:
       - "8083:8083"
     networks:
