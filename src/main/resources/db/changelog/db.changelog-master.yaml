@@ -73,7 +73,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: created
+                  name: expires
                   type: timestamp
                   constraints:
                     nullable: false

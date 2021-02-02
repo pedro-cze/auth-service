@@ -5,10 +5,13 @@ import cz.pedro.auth.entity.SessionObject
 import cz.pedro.auth.error.GeneralFailure
 import cz.pedro.auth.error.SessionObjectFailure
 import cz.pedro.auth.service.ValidationService
+import org.bouncycastle.jcajce.provider.digest.SHA256
+import org.joda.time.DateTime
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import java.security.SecureRandom
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 @Component
 class SessionObjectGeneratorImpl(
@@ -23,13 +26,17 @@ class SessionObjectGeneratorImpl(
 
     private fun buildSessionObject(serviceRequest: ServiceRequest): Either<GeneralFailure, SessionObject> {
         return try {
-            val hash = ""
+            val expires = DateTime.now().plusMinutes(10).toDate()
             val sessionObject = SessionObject(
-                    UUID.randomUUID(), serviceRequest.username!!, LocalDateTime.now(), serviceRequest.appId!!
+                    UUID.randomUUID(), serviceRequest.username!!, expires, serviceRequest.appId!!
             )
             Either.right(sessionObject)
         } catch (e: Exception) {
             Either.left(SessionObjectFailure.SessionHashGenerationFailure("Hash generation failed: ${e.cause}"))
         }
+    }
+
+    private fun generateSessionId(serviceRequest: ServiceRequest): String {
+        TODO()
     }
 }

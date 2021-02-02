@@ -8,7 +8,7 @@ import cz.pedro.auth.error.AuthenticationFailure.UserNotFound
 import cz.pedro.auth.error.GeneralFailure
 import cz.pedro.auth.error.RegistrationFailure
 import cz.pedro.auth.error.SessionObjectFailure
-import cz.pedro.auth.repository.SessionRepository
+import cz.pedro.auth.repository.SessionObjectRepository
 import cz.pedro.auth.repository.UserRepository
 import cz.pedro.auth.security.model.AuthRequester
 import cz.pedro.auth.service.AuthService
@@ -24,7 +24,7 @@ import java.util.UUID
 
 @Service
 class AuthServiceImpl(
-        @Autowired val sessionRepository: SessionRepository,
+        @Autowired val sessionObjectRepository: SessionObjectRepository,
         @Autowired val userRepository: UserRepository,
         @Autowired val validationService: ValidationService,
         @Autowired val tokenGenerationService: TokenGenerationService,
@@ -44,11 +44,11 @@ class AuthServiceImpl(
 
     @Transactional
     override fun invalidateSession(sessionId: UUID): Either<GeneralFailure, String> {
-            val res = sessionRepository.findById(sessionId)
+            val res = sessionObjectRepository.findById(sessionId)
             return if (!res.isPresent) {
                 Either.left(SessionObjectFailure.SessionObjectNotFound())
             } else {
-                sessionRepository.delete(res.get())
+                sessionObjectRepository.delete(res.get())
                 Either.right(sessionId.toString())
             }
     }
@@ -81,7 +81,7 @@ class AuthServiceImpl(
 
     private fun storeSessionObject(sessionObject: SessionObject): Either<GeneralFailure, SessionObject> {
         return try {
-            sessionRepository.save(sessionObject)
+            sessionObjectRepository.save(sessionObject)
             Either.right(sessionObject)
         } catch (e: Exception) {
             Either.left(SessionObjectFailure.SessionSaveFailure())
