@@ -5,13 +5,10 @@ import cz.pedro.auth.entity.SessionObject
 import cz.pedro.auth.error.GeneralFailure
 import cz.pedro.auth.error.SessionObjectFailure
 import cz.pedro.auth.service.ValidationService
-import org.bouncycastle.jcajce.provider.digest.SHA256
 import org.joda.time.DateTime
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import java.security.SecureRandom
-import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 @Component
 class SessionObjectGeneratorImpl(

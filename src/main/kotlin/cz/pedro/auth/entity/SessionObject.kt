@@ -1,8 +1,12 @@
 package cz.pedro.auth.entity
 
-import java.time.LocalDateTime
-import java.util.*
-import javax.persistence.*
+import java.util.Date
+import java.util.UUID
+import javax.persistence.Entity
+import javax.persistence.Table
+import javax.persistence.Id
+import javax.persistence.Temporal
+import javax.persistence.TemporalType
 
 @Entity
 @Table(name = "session_object")

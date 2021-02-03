@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.*
+import java.util.Date
 
 private val logger = KotlinLogging.logger {}
 
@@ -34,5 +34,4 @@ class SessionObjectDeletionJob(
     private fun deleteBatchOfExpiredSessionObjects(entities: List<SessionObject>) {
         sessionObjectRepository.deleteInBatch(entities)
     }
-
 }
