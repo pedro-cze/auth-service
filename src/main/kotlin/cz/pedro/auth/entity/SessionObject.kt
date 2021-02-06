@@ -16,5 +16,6 @@ data class SessionObject(
         val username: String,
         @Temporal(TemporalType.TIMESTAMP)
         val expires: Date,
-        val appId: String
+        val appId: String,
+        val hash: String
 )

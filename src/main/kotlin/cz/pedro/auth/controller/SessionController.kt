@@ -30,13 +30,14 @@ class SessionController(
     fun login(@RequestBody sessionRequest: ServiceRequest.SessionRequest): ResponseEntity<String> {
         return when (val res: Either<GeneralFailure, SessionObject> = authService.getSession(sessionRequest)) {
             is Left -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
-            else -> ResponseEntity.ok().body(res.map { SessionResponse(it.sessionId) }.toString())
+            else -> ResponseEntity.ok().body(res.map { SessionResponse(it.hash) }.toString())
         }
     }
 
     @PostMapping(path = ["/valid"])
     @CrossOrigin(origins = ["http://localhost:8085"])
-    fun validate(@RequestBody sessionId: String): ResponseEntity<Unit> {
+    fun validate(@RequestBody sessionHash: String): ResponseEntity<Unit> {
+        // if exists return ok else return 401
         return ResponseEntity.ok().build()
     }
 

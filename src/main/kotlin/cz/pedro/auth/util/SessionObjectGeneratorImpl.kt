@@ -8,7 +8,8 @@ import cz.pedro.auth.service.ValidationService
 import org.joda.time.DateTime
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import java.util.UUID
+import java.security.MessageDigest
+import java.util.*
 
 @Component
 class SessionObjectGeneratorImpl(
@@ -16,8 +17,8 @@ class SessionObjectGeneratorImpl(
         val validationService: ValidationService
 ) : SessionObjectGenerator {
 
-    override fun generateSessionObject(serviceRequest: ServiceRequest): Either<GeneralFailure, SessionObject> {
-        return validationService.validate(serviceRequest)
+    override fun generateSessionObject(sessionRequest: ServiceRequest): Either<GeneralFailure, SessionObject> {
+        return validationService.validate(sessionRequest)
                 .flatMap { buildSessionObject(it) }
     }
 
@@ -25,15 +26,22 @@ class SessionObjectGeneratorImpl(
         return try {
             val expires = DateTime.now().plusMinutes(10).toDate()
             val sessionObject = SessionObject(
-                    UUID.randomUUID(), serviceRequest.username!!, expires, serviceRequest.appId!!
+                UUID.randomUUID(), serviceRequest.username!!, expires, serviceRequest.appId!!, generateSessionId(serviceRequest).toString()
             )
             Either.right(sessionObject)
+        } catch (e: Exception) {
+            Either.left(SessionObjectFailure.SessionObjectGenerationFailure("Session object generation failed: ${e.cause}"))
+        }
+    }
+
+    private fun generateSessionId(serviceRequest: ServiceRequest): Either<GeneralFailure, String> {
+        return try {
+            val sessionId = MessageDigest.getInstance("SHA-256").digest(serviceRequest.toString().toByteArray()).toHex()
+            Either.right(sessionId)
         } catch (e: Exception) {
             Either.left(SessionObjectFailure.SessionHashGenerationFailure("Hash generation failed: ${e.cause}"))
         }
     }
 
-    private fun generateSessionId(serviceRequest: ServiceRequest): String {
-        TODO()
-    }
+    private fun ByteArray.toHex(): String = joinToString("") { "%02x".format(it) }
 }

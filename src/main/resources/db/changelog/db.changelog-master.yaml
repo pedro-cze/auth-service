@@ -82,3 +82,8 @@ databaseChangeLog:
                   type: varchar(255)
                   constraints:
                     nullable: false
+              - column:
+                  name: hash
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
