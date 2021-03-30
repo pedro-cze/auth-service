@@ -9,7 +9,7 @@ import org.joda.time.DateTime
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.security.MessageDigest
-import java.util.*
+import java.util.UUID
 
 @Component
 class SessionObjectGeneratorImpl(
