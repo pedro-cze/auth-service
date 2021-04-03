@@ -2,7 +2,6 @@ package cz.pedro.auth.controller
 
 import cz.pedro.auth.data.InvalidateRequest
 import cz.pedro.auth.data.ServiceRequest
-import cz.pedro.auth.data.SessionResponse
 import cz.pedro.auth.entity.SessionObject
 import cz.pedro.auth.error.GeneralFailure
 import cz.pedro.auth.service.AuthService
@@ -39,7 +38,7 @@ class SessionController(
     @PostMapping(path = ["/valid"])
     @CrossOrigin(origins = ["http://localhost:8085"])
     fun validate(@RequestBody sessionHash: String): ResponseEntity<Unit> {
-        return when(sessionService.validateSession(sessionHash)) {
+        return when (sessionService.validateSession(sessionHash)) {
             is Left -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build<Unit>()
             else -> ResponseEntity.ok().build()
         }
@@ -47,7 +46,7 @@ class SessionController(
 
     @DeleteMapping("/invalidate")
     fun invalidate(@RequestBody invalidateRequest: InvalidateRequest): ResponseEntity<Unit> {
-        return when (val res: Either<GeneralFailure, String> = authService.invalidateSession(invalidateRequest.sessionId)) {
+        return when (authService.invalidateSession(invalidateRequest.sessionId)) {
             is Left -> ResponseEntity.status(HttpStatus.NOT_FOUND).build()
             else -> ResponseEntity.noContent().build()
         }
