@@ -29,5 +29,4 @@ class SessionServiceImpl(
         }
         return Either.left(SessionObjectFailure.SessionObjectNotFound())
     }
-
 }
