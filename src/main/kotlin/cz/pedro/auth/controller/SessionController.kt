@@ -12,12 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.CrossOrigin
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping(path = ["/session"])
@@ -44,9 +39,9 @@ class SessionController(
         }
     }
 
-    @DeleteMapping("/invalidate")
-    fun invalidate(@RequestBody invalidateRequest: InvalidateRequest): ResponseEntity<Unit> {
-        return when (authService.invalidateSession(invalidateRequest.sessionId)) {
+    @DeleteMapping("/invalidate/{sessionHash}")
+    fun invalidate(@PathVariable sessionHash: String): ResponseEntity<Unit> {
+        return when (sessionService.invalidateSession(sessionHash)) {
             is Left -> ResponseEntity.status(HttpStatus.NOT_FOUND).build()
             else -> ResponseEntity.noContent().build()
         }

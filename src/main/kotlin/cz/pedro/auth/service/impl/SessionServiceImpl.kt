@@ -20,4 +20,14 @@ class SessionServiceImpl(
             Either.right(sessionHash)
         }
     }
+
+    @Transactional
+    override fun invalidateSession(sessionHash: String): Either<SessionObjectFailure, String> {
+        sessionObjectRepository.findByHash(sessionHash)?.let {
+            sessionObjectRepository.delete(it)
+            return Either.right(sessionHash)
+        }
+        return Either.left(SessionObjectFailure.SessionObjectNotFound())
+    }
+
 }
