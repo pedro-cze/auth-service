@@ -17,5 +17,6 @@ spring:
     consul:
       discovery:
         health-check-path: /actuator/health
+        service-name: auth-service
 server:
   port: 8083
