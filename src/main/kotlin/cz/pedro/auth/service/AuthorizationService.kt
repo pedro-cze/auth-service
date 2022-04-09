@@ -5,5 +5,5 @@ import org.springframework.security.core.userdetails.UserDetailsService
 
 interface AuthorizationService : UserDetailsService {
 
-    override fun loadUserByUsername(username: String?): UserDetails
+    fun loadUserByUsernameAndAppId(username: String?, appId: String): UserDetails
 }

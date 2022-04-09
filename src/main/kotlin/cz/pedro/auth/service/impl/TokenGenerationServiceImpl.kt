@@ -18,6 +18,7 @@ class TokenGenerationServiceImpl : TokenGenerationService {
         val algorithm = Algorithm.HMAC256(JwtProperties.SECRET)
         val token = JWT.create()
                 .withExpiresAt(getExpiration())
+                .withIssuer(user.user.serviceName) // TODO
                 .withSubject(user.username)
                 .sign(algorithm)
         return "$TOKEN_PREFIX$token"

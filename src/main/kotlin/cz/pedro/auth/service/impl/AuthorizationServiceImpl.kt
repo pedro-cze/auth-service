@@ -22,4 +22,13 @@ class AuthorizationServiceImpl : AuthorizationService {
         }
         return EmptyUserDetails()
     }
+
+    override fun loadUserByUsernameAndAppId(username: String?, appId: String): UserDetails {
+        username?.let {
+            userRepository.findByUsernameAndServiceName(username, appId)?.let {
+                return AuthRequester(it)
+            }
+        }
+        return EmptyUserDetails()
+    }
 }

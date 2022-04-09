@@ -24,7 +24,7 @@ class AuthController(
 ) {
 
     @PostMapping(path = ["/login"])
-    @CrossOrigin(origins = ["http://localhost:8080"])
+    @CrossOrigin(origins = ["http://localhost:3000", "http://localhost:8080"])
     fun auth(@RequestBody request: ServiceRequest.AuthenticationRequest): ResponseEntity<String> {
         return when (val res: Either<GeneralFailure, String> = authService.login(request)) {
             is Left -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(res.toString())

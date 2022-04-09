@@ -13,6 +13,11 @@ databaseChangeLog:
                     primaryKey: true
                     nullable: false
               - column:
+                  name: service_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: flase
+              - column:
                   name: username
                   type: varchar(100)
                   constraints:
@@ -36,21 +41,78 @@ databaseChangeLog:
       id: 2
       author: PK
       changes:
-       - insert:
-           tableName: auth_user
-           columns:
-            - column:
-                name: id
-                valueComputed: uuid_generate_v4()
-            - column:
-                name: username
-                value: admin
-            - column:
-                name: password
-                value: $2a$10$d8LjAzX1YPnXp93puYNmruwTrBu8aC.Fka7mx2qazmD.igN5ZjzCC
-            - column:
-                name: authorities
-                value: ADMIN
-            - column:
-                name: active
-                value: true
+        - insert:
+            tableName: auth_user
+            columns:
+              - column:
+                  name: id
+                  valueComputed: gen_random_uuid()
+              - column:
+                  name: service_name
+                  value: ADMIN_SERVICE
+              - column:
+                  name: username
+                  value: admin
+              - column:
+                  name: password
+                  value: $2a$10$d8LjAzX1YPnXp93puYNmruwTrBu8aC.Fka7mx2qazmD.igN5ZjzCC
+              - column:
+                  name: authorities
+                  value: ADMIN
+              - column:
+                  name: active
+                  value: true
+        - insert:
+            tableName: auth_user
+            columns:
+              - column:
+                  name: id
+                  valueComputed: gen_random_uuid()
+              - column:
+                  name: service_name
+                  value: INVOICE_APP
+              - column:
+                  name: username
+                  value: admin
+              - column:
+                  name: password
+                  value: $2a$10$d8LjAzX1YPnXp93puYNmruwTrBu8aC.Fka7mx2qazmD.igN5ZjzCC
+              - column:
+                  name: authorities
+                  value: ADMIN
+              - column:
+                  name: active
+                  value: true
+  - changeSet:
+      id: 3
+      author: PK
+      changes:
+        - createTable:
+            tableName: session_object
+            columns:
+              - column:
+                  name: session_id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: username
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: expires
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: app_id
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: hash
+                  type: varchar(255)
+                  constraints:
+                    nullable: false

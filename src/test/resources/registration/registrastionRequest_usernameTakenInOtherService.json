@@ -1,7 +1,7 @@
 {
-  "appId": "INVOICE_APP",
+  "appId": "INVOICE_SERVICE",
   "username": "John Fitzgerald",
   "password": "Test1234",
-  "authorities": "   ",
+  "authorities": "USER",
   "active": true
 }

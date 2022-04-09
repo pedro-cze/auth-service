@@ -31,13 +31,16 @@ class AuthorizationFilter(authenticationManager: AuthenticationManager, val serv
         val token: String? = request.getHeader(HEADER_STRING)
         token?.let {
 
-            val username = JWT.require(Algorithm.HMAC256(SECRET))
-                    .build()
-                    .verify(token.replace(TOKEN_PREFIX, "")).subject
+            val jwtVerified = JWT.require(Algorithm.HMAC256(SECRET))
+                .build()
+                .verify(token.replace(TOKEN_PREFIX, ""))
+
+            val username = jwtVerified.subject
+            val appId = jwtVerified.issuer
 
             username?.let {
                 if (it.isBlank()) return null
-                val user: UserDetails = service.loadUserByUsername(username)
+                val user: UserDetails = service.loadUserByUsernameAndAppId(username, appId)
                 return UsernamePasswordAuthenticationToken(user, null, user.authorities)
             }
         }
