@@ -2,8 +2,11 @@ package cz.pedro.auth.service.impl
 
 import cz.pedro.auth.data.ServiceRequest
 import cz.pedro.auth.entity.ServiceAuthority
-import cz.pedro.auth.entity.User
-import cz.pedro.auth.error.*
+import cz.pedro.auth.error.GeneralFailure
+import cz.pedro.auth.error.ValidationFailure
+import cz.pedro.auth.error.RegistrationFailure
+import cz.pedro.auth.error.MissingAppId
+import cz.pedro.auth.error.PatchFailure
 import cz.pedro.auth.repository.UserRepository
 import cz.pedro.auth.service.ValidationService
 import cz.pedro.auth.util.AppId
@@ -142,14 +145,6 @@ class ValidationServiceImpl(
             return Either.right(request)
         }
         return Either.right(request)
-    }
-
-    private fun checkUsernameNotTakenIfPresent(request: ServiceRequest): Either<GeneralFailure, ServiceRequest> {
-        return if (request.username == null) {
-            Either.right(request)
-        } else {
-            checkUsernameNotTaken(request)
-        }
     }
 
     private fun checkPasswordNotEmptyOrNull(request: ServiceRequest, errorMessage: String): Either<GeneralFailure, ServiceRequest> {
