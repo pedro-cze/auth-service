@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import java.security.SecureRandom
 
 @Configuration
 @EnableWebSecurity
@@ -28,7 +29,7 @@ class WebSecurityConfiguration : WebSecurityConfigurerAdapter() {
                 ?.antMatchers(HttpMethod.POST, "/session/valid")?.permitAll()
                 ?.antMatchers(HttpMethod.DELETE, "/session/invalidate/*")?.permitAll()
                 ?.antMatchers(HttpMethod.GET, "/actuator/health")?.permitAll()
-                ?.antMatchers(HttpMethod.POST, "/auth/new")?.hasRole("ADMIN")
+                ?.antMatchers(HttpMethod.POST, "/auth/new")?.permitAll()
                 ?.antMatchers(HttpMethod.PATCH, "/admin/update/*")?.hasRole("ADMIN")
                 ?.anyRequest()?.authenticated()
     }
@@ -49,6 +50,6 @@ class WebSecurityConfiguration : WebSecurityConfigurerAdapter() {
 
     @Bean
     fun passwordEncoder(): BCryptPasswordEncoder {
-        return BCryptPasswordEncoder()
+        return BCryptPasswordEncoder(BCryptPasswordEncoder.BCryptVersion.`$2A`, 8, SecureRandom.getInstance("SHA1PRNG"))
     }
 }

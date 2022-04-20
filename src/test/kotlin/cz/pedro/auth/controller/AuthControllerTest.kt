@@ -165,23 +165,17 @@ class AuthControllerTest {
         }
 
         @Test
-        fun `login as admin and successful registration`() {
-            val admin = userRepository.findByUsernameAndServiceName("John Doe", "INVOICE_APP")
-            admin?.let {
-                val token = tokenGenerationService.generateToken(AuthRequester(admin))
-                val request = Request.Builder()
-                        .post(RequestBody.create(MediaType.parse("application/json"), FileLoader.loadFile("registration/registrationRequest_successful.json")
-                                ?: File("")))
-                        .addHeader("Content-Type", "application/json")
-                        .addHeader("Authentication", token)
-                        .url(HttpUrl.get("http://localhost:$port/auth/new"))
-                        .build()
+        fun `registration of a new user`() {
+            val request = Request.Builder()
+                    .post(RequestBody.create(MediaType.parse("application/json"), FileLoader.loadFile("registration/registrationRequest_successful.json")
+                            ?: File("")))
+                    .addHeader("Content-Type", "application/json")
+                    .url(HttpUrl.get("http://localhost:$port/auth/new"))
+                    .build()
 
-                val response = okHttpClient.newCall(request).execute()
-                check(response.code() == HttpStatus.CREATED.value())
-                check(response.body()!!.string() == "John Deer")
-            }
-            check(admin != null)
+            val response = okHttpClient.newCall(request).execute()
+            check(response.code() == HttpStatus.CREATED.value()) { response }
+            check(response.body()!!.string() == "John Deer")
         }
 
         @Test
@@ -340,33 +334,6 @@ class AuthControllerTest {
                 check(response.body()?.string() == "Failure: Username already taken")
             }
             check(admin != null)
-        }
-
-        @Nested
-        inner class RegisterAsUser {
-
-            init {
-                authService.register(ServiceRequest.RegistrationRequest("INVOICE_APP", "John User", "Test1234", "USER", true))
-            }
-
-            @Test
-            fun `login as user and try to register a user`() {
-                val user = userRepository.findByUsername("John User")
-                user?.let {
-                    val token = tokenGenerationService.generateToken(AuthRequester(user))
-                    val request = Request.Builder()
-                            .post(RequestBody.create(MediaType.parse("application/json"), FileLoader.loadFile("registration/registrationRequest_successful.json")
-                                    ?: File("")))
-                            .addHeader("Content-Type", "application/json")
-                            .addHeader("Authentication", token)
-                            .url(HttpUrl.get("http://localhost:$port/auth/new"))
-                            .build()
-
-                    val response = okHttpClient.newCall(request).execute()
-                    check(response.code() == HttpStatus.FORBIDDEN.value())
-                }
-                check(user != null)
-            }
         }
     }
 

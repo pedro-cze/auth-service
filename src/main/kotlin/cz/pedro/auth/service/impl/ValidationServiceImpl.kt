@@ -1,7 +1,6 @@
 package cz.pedro.auth.service.impl
 
 import cz.pedro.auth.data.ServiceRequest
-import cz.pedro.auth.entity.ServiceAuthority
 import cz.pedro.auth.error.GeneralFailure
 import cz.pedro.auth.error.ValidationFailure
 import cz.pedro.auth.error.RegistrationFailure
@@ -9,6 +8,7 @@ import cz.pedro.auth.error.MissingAppId
 import cz.pedro.auth.error.PatchFailure
 import cz.pedro.auth.repository.UserRepository
 import cz.pedro.auth.service.ValidationService
+import cz.pedro.auth.util.AppConstants
 import cz.pedro.auth.util.AppId
 import cz.pedro.auth.util.Either
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service
 class ValidationServiceImpl(
         @Autowired val userRepository: UserRepository
 ) : ValidationService {
+
+    private val DEFAULT_SYSTEM_ROLES = listOf(AppConstants.Authority.USER, AppConstants.Authority.ADMIN)
 
     override fun validate(request: ServiceRequest): Either<GeneralFailure, ServiceRequest> {
         return when (request) {
@@ -103,7 +105,7 @@ class ValidationServiceImpl(
     }
 
     private fun isValidAuthority(token: String): Boolean {
-        return ServiceAuthority.ADMIN.name == token || ServiceAuthority.USER.name == token
+        return DEFAULT_SYSTEM_ROLES.contains(token)
     }
 
     private fun checkUsernameNotEmpty(request: ServiceRequest, errorMessage: String): Either<GeneralFailure, ServiceRequest> {
