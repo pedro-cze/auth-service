@@ -17,5 +17,5 @@ data class User(
         var username: String,
         var password: String,
         var authorities: String,
-        var active: Boolean
+        var active: Boolean = false
 )

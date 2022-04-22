@@ -14,7 +14,5 @@ interface AuthService {
 
     fun login(request: ServiceRequest.AuthenticationRequest): Either<GeneralFailure, String>
 
-    fun register(request: ServiceRequest.RegistrationRequest): Either<GeneralFailure, String>
-
     fun update(userId: UUID, request: ServiceRequest.PatchRequest): Either<GeneralFailure, String>
 }

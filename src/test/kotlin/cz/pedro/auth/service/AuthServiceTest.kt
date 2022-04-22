@@ -10,8 +10,6 @@ import cz.pedro.auth.repository.UserRepository
 import cz.pedro.auth.security.model.AuthRequester
 import cz.pedro.auth.util.Either
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers.anyString
-import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -27,13 +25,12 @@ class AuthServiceTest {
 
     @Autowired
     private lateinit var authService: AuthService
-
+    @Autowired
+    private lateinit var registrationService: RegistrationService
     @MockBean
     private lateinit var userRepository: UserRepository
-
     @MockBean
     private lateinit var generationService: TokenGenerationService
-
     @MockBean
     private lateinit var encoder: BCryptPasswordEncoder
 
@@ -107,62 +104,6 @@ class AuthServiceTest {
         val result = authService.login(mockAuthRequest)
         check(result.isLeft())
         check(result.fold({ customError -> customError is AuthenticationFailure.Unauthorized }, { false }))
-    }
-
-    @Test
-    fun registerUser_success() {
-        val userId = UUID.randomUUID()
-        val mockRegisterRequest = ServiceRequest.RegistrationRequest(appId = "INVOICE_APP", username = "John Doe", password = "Test1234", authorities = "USER, ADMIN", active = true)
-
-        Mockito.`when`(userRepository.findByUsernameAndServiceName(Mockito.anyString(), Mockito.anyString())).thenReturn(null)
-        Mockito.`when`(userRepository.save(Mockito.any(User::class.java)))
-            .thenReturn(User(userId, "INVOICE_APP", "John Doe", "foo", "USER", true))
-        Mockito.`when`(encoder.encode(eq("Test1234"))).thenReturn("Test1234")
-
-        val result = authService.register(mockRegisterRequest)
-        check(!result.isLeft())
-        check(result.toString() == "John Doe")
-    }
-
-    @Test
-    fun registerUserTest_emptyUsername() {
-        val request = ServiceRequest.RegistrationRequest(appId = "INVOICE_APP", username = "", password = "test1234", authorities = "USER, ADMIN", active = true)
-        val result = authService.register(request)
-        check(result.isLeft())
-        check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyUsername }, { false }))
-    }
-
-    @Test
-    fun registerUserTest_blankUsername() {
-        val request = ServiceRequest.RegistrationRequest(appId = "INVOICE_APP", username = "   ", password = "test1234", authorities = "USER, ADMIN", active = true)
-        val result = authService.register(request)
-        check(result.isLeft())
-        check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyUsername }, { false }))
-    }
-
-    @Test
-    fun registerUserTest_emptyPassword() {
-        val request = ServiceRequest.RegistrationRequest(appId = "INVOICE_APP", username = "John Doe", password = "", authorities = "USER, ADMIN", active = true)
-        val result = authService.register(request)
-        check(result.isLeft())
-        check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyPassword }, { false }))
-    }
-
-    @Test
-    fun registerUserTest_blankPassword() {
-        val request = ServiceRequest.RegistrationRequest(appId = "INVOICE_APP", username = "John Doe", password = "   ", authorities = "USER, ADMIN", active = true)
-        val result = authService.register(request)
-        check(result.isLeft())
-        check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyPassword }, { false }))
-    }
-
-    @Test
-    fun registerUserTest_usernameTaken() {
-        Mockito.`when`(userRepository.findByUsernameAndServiceName(Mockito.anyString(), Mockito.anyString())).thenReturn(User(UUID.randomUUID(), "INVOICE_APP", "John Doe", "foo", "USER", false))
-        val request = ServiceRequest.RegistrationRequest(appId = "INVOICE_APP", username = "John Doe", password = "test1234", authorities = "USER, ADMIN", active = true)
-        val result = authService.register(request)
-        check(result.isLeft())
-        check(result.fold({ customError -> customError is RegistrationFailure.UsernameAlreadyUsed }, { false }))
     }
 
     @Test
