@@ -7,8 +7,10 @@ import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest
+@ActiveProfiles("test")
 class RegistrationServiceTest {
 
     @Autowired
@@ -35,7 +37,7 @@ class RegistrationServiceTest {
         val registrationRequest = ServiceRequest.RegistrationRequest(appId = "INVOICE_APP", username = "", password = "test1234", authorities =
         "USER, ADMIN")
         val result = registrationService.register(registrationRequest)
-        check(result.isLeft())
+        check(result.isLeft()) { result }
         check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyUsername }, { false }))
     }
 
@@ -43,7 +45,7 @@ class RegistrationServiceTest {
     fun registerUserTest_blankUsername() {
         val request = ServiceRequest.RegistrationRequest(appId = "INVOICE_APP", username = "   ", password = "test1234", authorities = "USER, ADMIN")
         val result = registrationService.register(request)
-        check(result.isLeft())
+        check(result.isLeft()) { result }
         check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyUsername }, { false }))
     }
 
@@ -51,7 +53,7 @@ class RegistrationServiceTest {
     fun registerUserTest_emptyPassword() {
         val request = ServiceRequest.RegistrationRequest(appId = "INVOICE_APP", username = "John Doe", password = "", authorities = "USER, ADMIN")
         val result = registrationService.register(request)
-        check(result.isLeft())
+        check(result.isLeft()) { result }
         check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyPassword }, { false }))
     }
 
@@ -59,7 +61,7 @@ class RegistrationServiceTest {
     fun registerUserTest_blankPassword() {
         val request = ServiceRequest.RegistrationRequest(appId = "INVOICE_APP", username = "John Doe", password = "   ", authorities = "USER, ADMIN")
         val result = registrationService.register(request)
-        check(result.isLeft())
+        check(result.isLeft()) { result }
         check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyPassword }, { false }))
     }
 
@@ -67,7 +69,7 @@ class RegistrationServiceTest {
     fun registerUserTest_usernameTaken() {
         val request = ServiceRequest.RegistrationRequest(appId = "INVOICE_APP", username = "John Doe", password = "test1234", authorities = "USER, ADMIN")
         val result = registrationService.register(request)
-        check(result.isLeft())
+        check(result.isLeft()) { result }
         check(result.fold({ customError -> customError is RegistrationFailure.UsernameAlreadyUsed }, { false }))
     }
 }
