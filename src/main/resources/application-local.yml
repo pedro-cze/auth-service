@@ -3,6 +3,16 @@ spring:
     consul:
       discovery:
         health-check-path: /actuator/health
+  mail:
+    host: localhost
+    port: 25
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttsl:
+            enable: false
 
   application:
     name: auth-service
@@ -23,3 +33,6 @@ server:
 management:
   server:
     port: 4453
+
+email:
+  service: normal

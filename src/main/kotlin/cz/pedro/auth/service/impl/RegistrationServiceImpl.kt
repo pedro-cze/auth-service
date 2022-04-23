@@ -8,6 +8,7 @@ import cz.pedro.auth.error.GeneralFailure
 import cz.pedro.auth.error.RegistrationFailure
 import cz.pedro.auth.repository.RegistrationRepository
 import cz.pedro.auth.repository.UserRepository
+import cz.pedro.auth.service.RegistrationEmailService
 import cz.pedro.auth.service.RegistrationService
 import cz.pedro.auth.service.ValidationService
 import cz.pedro.auth.util.Either
@@ -25,26 +26,27 @@ class RegistrationServiceImpl(
         @Autowired val validationService: ValidationService,
         @Autowired val registrationRepository: RegistrationRepository,
         @Autowired val userRepository: UserRepository,
-        @Autowired val encoder: BCryptPasswordEncoder
+        @Autowired val encoder: BCryptPasswordEncoder,
+        @Autowired val emailService: RegistrationEmailService
 ) : RegistrationService {
 
     @Transactional
     override fun register(request: ServiceRequest.RegistrationRequest): Either<GeneralFailure, String> {
         return validationService.validate(request)
                 .flatMap { createRegistration(request) }
+                .flatMap { sendConfirmationEmail(it) }
                 .flatMap { createUser(request) }
-//                .flatMap { sendConfirmationEmail() } TODO
                 .map { it.username }
     }
 
-    private fun createRegistration(request: ServiceRequest.RegistrationRequest): Either<GeneralFailure, ServiceRequest> {
+    private fun createRegistration(request: ServiceRequest.RegistrationRequest): Either<GeneralFailure, Registration> {
         val registration = Registration(
                 username = request.username,
                 password = encoder.encode(request.password),
                 hash = BigInteger(1, SecureRandom.getInstance("SHA1PRNG").generateSeed(32)).toString(16))
         return try {
             registrationRepository.save(registration)
-            Either.right(request)
+            Either.right(registration)
         } catch (e: Exception) {
             Either.left(RegistrationFailure.SavingFailed())
         }
@@ -120,7 +122,12 @@ class RegistrationServiceImpl(
         return Either.left(RegistrationFailure.UserNotFound())
     }
 
-    private fun sendConfirmationEmail(): Either<GeneralFailure, ServiceRequest> {
-        TODO()
+    private fun sendConfirmationEmail(registration: Registration): Either<GeneralFailure, String> {
+        return try {
+            emailService.sendConfirmationEmail(registration.username, registration.hash)
+            Either.right(registration.username)
+        } catch (e: Exception) {
+            Either.left(RegistrationFailure.EmailNotSent())
+        }
     }
 }

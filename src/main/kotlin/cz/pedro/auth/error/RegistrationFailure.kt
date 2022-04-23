@@ -15,4 +15,6 @@ sealed class RegistrationFailure(override val message: String) : GeneralFailure(
     class UserNotFound(message: String = "Could not activate user") : RegistrationFailure(message)
 
     class ActiveUserDetected(message: String = "Active user detected. Inconsistent state.") : RegistrationFailure(message)
+
+    class EmailNotSent(message: String = "Some error occurred while sending registration email.") : RegistrationFailure(message)
 }

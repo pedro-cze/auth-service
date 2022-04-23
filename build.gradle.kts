@@ -41,10 +41,11 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-ribbon:2.2.2.RELEASE")
     implementation("org.springframework.cloud:spring-cloud-starter-consul-config:2.2.2.RELEASE")
     implementation("org.springframework.cloud:spring-cloud-starter-consul-discovery:2.2.2.RELEASE")
-    implementation("com.auth0:java-jwt:3.4.0")
+    implementation("org.springframework.boot:spring-boot-starter-mail")
+    implementation("com.auth0:java-jwt:3.19.1")
     implementation("org.liquibase:liquibase-core")
-    implementation("com.h2database:h2:1.4.200")
-    implementation("io.github.microutils:kotlin-logging:1.12.0")
+    implementation("com.h2database:h2:2.1.210")
+    implementation("io.github.microutils:kotlin-logging:2.1.21")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
@@ -52,7 +53,7 @@ dependencies {
     }
     testImplementation("com.h2database:h2")
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("com.squareup.okhttp3:mockwebserver:4.8.0")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.9.3")
 }
 
 dependencyManagement {
