@@ -2,9 +2,10 @@ package cz.pedro.auth.controller
 
 import cz.pedro.auth.data.ServiceRequest
 import cz.pedro.auth.helper.FileLoader
+import cz.pedro.auth.repository.RegistrationRepository
 import cz.pedro.auth.repository.UserRepository
 import cz.pedro.auth.security.model.AuthRequester
-import cz.pedro.auth.service.AuthService
+import cz.pedro.auth.service.RegistrationService
 import cz.pedro.auth.service.TokenGenerationService
 import okhttp3.HttpUrl
 import okhttp3.MediaType
@@ -36,21 +37,26 @@ class AuthControllerTest {
     @Autowired
     lateinit var okHttpClient: OkHttpClient
     @Autowired
-    lateinit var authService: AuthService
-    @Autowired
     lateinit var tokenGenerationService: TokenGenerationService
     @Autowired
     lateinit var userRepository: UserRepository
+    @Autowired
+    lateinit var registrationService: RegistrationService
+    @Autowired
+    lateinit var registrationRepository: RegistrationRepository
 
     @Nested
     inner class Login {
 
         init {
-            authService.register(ServiceRequest.RegistrationRequest("INVOICE_APP", "John Doe", "Test1234", "ADMIN", true))
+            registrationService.register(ServiceRequest.RegistrationRequest("INVOICE_APP", "John Doee", "Test1234", "ADMIN"))
+                    .map { registrationRepository.findByUsername(it) }
+                    .map { registrationService.confirmRegistration(it!!.hash) }
         }
 
         @Test
         fun `successful login`() {
+
             val request = Request.Builder()
                     .post(RequestBody.create(MediaType.parse("application/json"), FileLoader.loadFile("login/loginRequest_successful.json")
                             ?: File("")))
@@ -58,7 +64,7 @@ class AuthControllerTest {
                     .url(HttpUrl.get("http://localhost:$port/auth/login"))
                     .build()
             val response = okHttpClient.newCall(request).execute()
-            check(response.code() == HttpStatus.OK.value())
+            check(response.code() == HttpStatus.OK.value()) { response }
             check(response.body()!!.contentType() == MediaType.parse("text/plain;charset=UTF-8"))
         }
 
@@ -73,7 +79,7 @@ class AuthControllerTest {
             val response = okHttpClient.newCall(request).execute()
             check(response.code() == HttpStatus.UNAUTHORIZED.value())
             check(response.body()!!.contentType() == MediaType.parse("text/plain;charset=UTF-8"))
-            check(response.body()!!.string() == "Failure: Unauthorized")
+            check(response.body()!!.string() == "Failure: Unauthorized") { response }
         }
 
         @Test
@@ -158,193 +164,13 @@ class AuthControllerTest {
     }
 
     @Nested
-    inner class Registration {
-
-        init {
-            authService.register(ServiceRequest.RegistrationRequest("INVOICE_APP", "John Doe", "Test1234", "ADMIN", true))
-        }
-
-        @Test
-        fun `registration of a new user`() {
-            val request = Request.Builder()
-                    .post(RequestBody.create(MediaType.parse("application/json"), FileLoader.loadFile("registration/registrationRequest_successful.json")
-                            ?: File("")))
-                    .addHeader("Content-Type", "application/json")
-                    .url(HttpUrl.get("http://localhost:$port/auth/new"))
-                    .build()
-
-            val response = okHttpClient.newCall(request).execute()
-            check(response.code() == HttpStatus.CREATED.value()) { response }
-            check(response.body()!!.string() == "John Deer")
-        }
-
-        @Test
-        fun `login as admin and empty password`() {
-            val admin = userRepository.findByUsername("John Doe")
-            admin?.let {
-                val token = tokenGenerationService.generateToken(AuthRequester(admin))
-                val request = Request.Builder()
-                        .post(RequestBody.create(MediaType.parse("application/json"), FileLoader.loadFile("registration/registrationRequest_emptyPassword.json")
-                                ?: File("")))
-                        .addHeader("Content-Type", "application/json")
-                        .addHeader("Authentication", token)
-                        .url(HttpUrl.get("http://localhost:$port/auth/new"))
-                        .build()
-
-                val response = okHttpClient.newCall(request).execute()
-                check(response.code() == HttpStatus.BAD_REQUEST.value())
-                check(response.body()!!.string() == "Failure: Null or empty password")
-            }
-            check(admin != null)
-        }
-
-        @Test
-        fun `login as admin and null password`() {
-            val admin = userRepository.findByUsername("John Doe")
-            admin?.let {
-                val token = tokenGenerationService.generateToken(AuthRequester(admin))
-                val request = Request.Builder()
-                        .post(RequestBody.create(MediaType.parse("application/json"), FileLoader.loadFile("registration/registrationRequest_nullPassword.json")
-                                ?: File("")))
-                        .addHeader("Content-Type", "application/json")
-                        .addHeader("Authentication", token)
-                        .url(HttpUrl.get("http://localhost:$port/auth/new"))
-                        .build()
-
-                val response = okHttpClient.newCall(request).execute()
-                check(response.code() == HttpStatus.BAD_REQUEST.value())
-            }
-            check(admin != null)
-        }
-
-        @Test
-        fun `login as admin and blank password`() {
-            val admin = userRepository.findByUsername("John Doe")
-            admin?.let {
-                val token = tokenGenerationService.generateToken(AuthRequester(admin))
-                val request = Request.Builder()
-                        .post(RequestBody.create(MediaType.parse("application/json"), FileLoader.loadFile("registration/registrationRequest_blankPassword.json")
-                                ?: File("")))
-                        .addHeader("Content-Type", "application/json")
-                        .addHeader("Authentication", token)
-                        .url(HttpUrl.get("http://localhost:$port/auth/new"))
-                        .build()
-
-                val response = okHttpClient.newCall(request).execute()
-                check(response.code() == HttpStatus.BAD_REQUEST.value())
-                check(response.body()!!.string() == "Failure: Null or empty password")
-            }
-            check(admin != null)
-        }
-
-        @Test
-        fun `invalid authorities`() {
-            val admin = userRepository.findByUsername("John Doe")
-            admin?.let {
-                val token = tokenGenerationService.generateToken(AuthRequester(admin))
-                val request = Request.Builder()
-                        .post(RequestBody.create(MediaType.parse("application/json"), FileLoader.loadFile("registration/registrationRequest_invalidAuthorities.json")
-                                ?: File("")))
-                        .addHeader("Content-Type", "application/json")
-                        .addHeader("Authentication", token)
-                        .url(HttpUrl.get("http://localhost:$port/auth/new"))
-                        .build()
-
-                val response = okHttpClient.newCall(request).execute()
-                check(response.code() == HttpStatus.BAD_REQUEST.value())
-                check(response.body()!!.string() == "Failure: Request didn't pass validation")
-            }
-            check(admin != null)
-        }
-
-        @Test
-        fun `login as admin authorities empty`() {
-            val admin = userRepository.findByUsername("John Doe")
-            admin?.let {
-                val token = tokenGenerationService.generateToken(AuthRequester(admin))
-                val request = Request.Builder()
-                        .post(RequestBody.create(MediaType.parse("application/json"), FileLoader.loadFile("registration/registrationRequest_emptyAuthorities.json")
-                                ?: File("")))
-                        .addHeader("Content-Type", "application/json")
-                        .addHeader("Authentication", token)
-                        .url(HttpUrl.get("http://localhost:$port/auth/new"))
-                        .build()
-
-                val response = okHttpClient.newCall(request).execute()
-                check(response.code() == HttpStatus.CREATED.value())
-                check(response.body()!!.string() == "John Soul")
-            }
-            check(admin != null)
-        }
-
-        @Test
-        fun `login as admin authorities blank`() {
-            val admin = userRepository.findByUsername("John Doe")
-            admin?.let {
-                val token = tokenGenerationService.generateToken(AuthRequester(admin))
-                val request = Request.Builder()
-                        .post(RequestBody.create(MediaType.parse("application/json"), FileLoader.loadFile("registration/registrationRequest_blankAuthorities.json")
-                                ?: File("")))
-                        .addHeader("Content-Type", "application/json")
-                        .addHeader("Authentication", token)
-                        .url(HttpUrl.get("http://localhost:$port/auth/new"))
-                        .build()
-
-                val response = okHttpClient.newCall(request).execute()
-                check(response.code() == HttpStatus.CREATED.value())
-                check(response.body()!!.string() == "John Fitzgerald")
-            }
-            check(admin != null)
-        }
-
-        @Test
-        fun `login as admin authorities null`() {
-            val admin = userRepository.findByUsername("John Doe")
-            admin?.let {
-                val token = tokenGenerationService.generateToken(AuthRequester(admin))
-                val request = Request.Builder()
-                        .post(RequestBody.create(MediaType.parse("application/json"), FileLoader.loadFile("registration/registrationRequest_nullAuthorities.json")
-                                ?: File("")))
-                        .addHeader("Content-Type", "application/json")
-                        .addHeader("Authentication", token)
-                        .url(HttpUrl.get("http://localhost:$port/auth/new"))
-                        .build()
-
-                val response = okHttpClient.newCall(request).execute()
-                check(response.code() == HttpStatus.BAD_REQUEST.value())
-            }
-            check(admin != null)
-        }
-
-        @Test
-        fun `username taken`() {
-            val admin = userRepository.findByUsername("John Doe")
-            admin?.let {
-                val token = tokenGenerationService.generateToken(AuthRequester(admin))
-                val request = Request.Builder()
-                        .post(RequestBody.create(MediaType.parse("application/json"), FileLoader.loadFile("registration/registrationRequest_usernameTaken.json")
-                                ?: File("")))
-                        .addHeader("Content-Type", "application/json")
-                        .addHeader("Authentication", token)
-                        .url(HttpUrl.get("http://localhost:$port/auth/new"))
-                        .build()
-
-                val response = okHttpClient.newCall(request).execute()
-                check(response.code() == HttpStatus.BAD_REQUEST.value())
-                check(response.body()?.string() == "Failure: Username already taken")
-            }
-            check(admin != null)
-        }
-    }
-
-    @Nested
     inner class UserPatch {
         @Nested
         inner class SuccessfulScenarios {
 
             init {
-                authService.register(ServiceRequest.RegistrationRequest("INVOICE_APP", "John Doe", "Test1234", "ADMIN", true))
-                authService.register(ServiceRequest.RegistrationRequest("INVOICE_APP", "Elliot Alderson", "Test1234", "USER", true))
+                registrationService.register(ServiceRequest.RegistrationRequest("INVOICE_APP", "John Doe", "Test1234", "ADMIN"))
+                registrationService.register(ServiceRequest.RegistrationRequest("INVOICE_APP", "Elliot Alderson", "Test1234", "USER"))
             }
 
             @Test
@@ -522,8 +348,8 @@ class AuthControllerTest {
         inner class ErrorScenarios {
 
             init {
-                authService.register(ServiceRequest.RegistrationRequest("INVOICE_APP", "John Doe", "Test1234", "ADMIN", true))
-                authService.register(ServiceRequest.RegistrationRequest("INVOICE_APP", "Elliot Alderson", "Test1234", "USER", true))
+                registrationService.register(ServiceRequest.RegistrationRequest("INVOICE_APP", "John Doe", "Test1234", "ADMIN"))
+                registrationService.register(ServiceRequest.RegistrationRequest("INVOICE_APP", "Elliot Alderson", "Test1234", "USER"))
             }
 
             @Test

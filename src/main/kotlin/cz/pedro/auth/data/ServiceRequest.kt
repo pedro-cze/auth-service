@@ -23,9 +23,8 @@ sealed class ServiceRequest(
             override val appId: String,
             override val username: String,
             override val password: String,
-            override val authorities: String,
-            override val active: Boolean
-    ) : ServiceRequest(appId, username, password, authorities, active)
+            override val authorities: String
+    ) : ServiceRequest(appId, username, password, authorities)
 
     class PatchRequest(
             override val username: String?,

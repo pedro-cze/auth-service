@@ -15,8 +15,8 @@ spring:
     change-log: classpath:/db/changelog/db.changelog-test.yaml
   cloud:
     consul:
+      enabled: false
       discovery:
-        health-check-path: /actuator/health
-        service-name: auth-service
+        enabled: false
 server:
   port: 8083

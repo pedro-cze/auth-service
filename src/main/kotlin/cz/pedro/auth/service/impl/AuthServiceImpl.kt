@@ -61,13 +61,6 @@ class AuthServiceImpl(
                     .flatMap { checkPassword(request.password, it) }
 
     @Transactional
-    override fun register(request: ServiceRequest.RegistrationRequest): Either<GeneralFailure, String> {
-        return validationService.validate(request)
-                .flatMap { createUser(request) }
-                .map { it.username }
-    }
-
-    @Transactional
     override fun update(userId: UUID, request: ServiceRequest.PatchRequest): Either<GeneralFailure, String> {
         return validationService.validate(request)
                 .flatMap { findUser(userId) }
@@ -115,16 +108,6 @@ class AuthServiceImpl(
     }
 
     private fun generateToken(user: AuthRequester): String = tokenGenerationService.generateToken(user)
-
-    private fun createUser(request: ServiceRequest.RegistrationRequest): Either<GeneralFailure, User> {
-        val user = User(null, request.appId, request.username, encoder.encode(request.password), request.authorities, request.active)
-        val res = userRepository.save(user)
-        return if (res.id == null) {
-            Either.left(RegistrationFailure.SavingFailed())
-        } else {
-            Either.right(res)
-        }
-    }
 
     private fun patchUser(user: User, patch: ServiceRequest.PatchRequest): Either<GeneralFailure, User> {
         val patched = User(
