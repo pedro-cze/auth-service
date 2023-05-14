@@ -17,10 +17,13 @@ class TokenGenerationServiceImpl : TokenGenerationService {
     override fun generateToken(user: AuthRequester): String {
         val algorithm = Algorithm.HMAC256(JwtProperties.SECRET)
         val token = JWT.create()
-                .withExpiresAt(getExpiration())
-                .withIssuer(user.user.serviceName) // TODO
-                .withSubject(user.username)
-                .sign(algorithm)
+            .withExpiresAt(getExpiration())
+            .withIssuer(user.user.serviceName) // TODO
+            .withSubject(user.username)
+            .withClaim("roles", user.authorities.map {
+                it.authority
+            })
+            .sign(algorithm)
         return "$TOKEN_PREFIX$token"
     }
 

@@ -39,9 +39,28 @@ class AuthServiceTest {
         val userId = UUID.randomUUID()
         val mockAuthRequest = ServiceRequest.AuthenticationRequest("INVOICE_APP", "John Doe", "hashed")
         Mockito.`when`(userRepository.findByUsernameAndServiceName(Mockito.anyString(), Mockito.anyString()))
-            .thenReturn(User(userId, "INVOICE_APP", "John Doe", "hashed", "USER", true))
+            .thenReturn(User(
+                userId,
+                serviceName = "INVOICE_APP",
+                firstName = "John",
+                lastName = "Doe",
+                username = "username",
+                password = "password",
+                email = "email",
+                authorities = "USER",
+                active = true)
+            )
         Mockito.`when`(encoder.matches(Mockito.anyString(), Mockito.anyString())).thenReturn(true)
-        Mockito.`when`(generationService.generateToken(AuthRequester(User(userId, "INVOICE_APP", "John Doe", "hashed", "USER", true)))).thenReturn("token")
+        Mockito.`when`(generationService.generateToken(AuthRequester(User(
+            userId,
+            serviceName = "INVOICE_APP",
+            firstName = "John",
+            lastName = "Doe",
+            username = "username",
+            password = "password",
+            email = "email",
+            authorities = "USER",
+            active = true)))).thenReturn("token")
         val result = authService.login(mockAuthRequest)
         check(!result.isLeft())
         check(result.fold({ false }, { res -> res == "token" }))
@@ -72,7 +91,8 @@ class AuthServiceTest {
     @Test
     fun passwordNotMatchesTest() {
         val mockAuthRequest = ServiceRequest.AuthenticationRequest("INVOICE_APP", "John Doe", "bar")
-        Mockito.`when`(userRepository.findByUsernameAndServiceName(Mockito.anyString(), Mockito.anyString())).thenReturn(User(UUID.randomUUID(), "INVOICE_APP", "John Doe", "foo", "USER", true))
+        Mockito.`when`(userRepository.findByUsernameAndServiceName(Mockito.anyString(), Mockito.anyString()))
+            .thenReturn(mockUser(UUID.randomUUID(), true))
         val result = authService.login(mockAuthRequest)
         check(result.isLeft())
         check(result.fold({ customError -> customError is AuthenticationFailure.Unauthorized }, { false }))
@@ -81,7 +101,8 @@ class AuthServiceTest {
     @Test
     fun emptyPasswordTest() {
         val mockAuthRequest = ServiceRequest.AuthenticationRequest("INVOICE_APP", "John Doe", "")
-        Mockito.`when`(userRepository.findByUsernameAndServiceName(Mockito.anyString(), Mockito.anyString())).thenReturn(User(UUID.randomUUID(), "INVOICE_APP", "John Doe", "foo", "USER", true))
+        Mockito.`when`(userRepository.findByUsernameAndServiceName(Mockito.anyString(), Mockito.anyString()))
+            .thenReturn(mockUser(UUID.randomUUID(), true))
         val result = authService.login(mockAuthRequest)
         check(result.isLeft())
         check(result.fold({ customError -> customError is AuthenticationFailure.Unauthorized }, { false }))
@@ -90,7 +111,8 @@ class AuthServiceTest {
     @Test
     fun blankPasswordTest() {
         val mockAuthRequest = ServiceRequest.AuthenticationRequest("INVOICE_APP", "John Doe", "   ")
-        Mockito.`when`(userRepository.findByUsernameAndServiceName(Mockito.anyString(), Mockito.anyString())).thenReturn(User(UUID.randomUUID(), "INVOICE_APP", "John Doe", "foo", "USER", true))
+        Mockito.`when`(userRepository.findByUsernameAndServiceName(Mockito.anyString(), Mockito.anyString()))
+            .thenReturn(mockUser(UUID.randomUUID(), true))
         val result = authService.login(mockAuthRequest)
         check(result.isLeft())
         check(result.fold({ customError -> customError is AuthenticationFailure.Unauthorized }, { false }))
@@ -99,7 +121,8 @@ class AuthServiceTest {
     @Test
     fun notActiveUserTest() {
         val mockAuthRequest = ServiceRequest.AuthenticationRequest("INVOICE_APP", "John Doe", "Test1234")
-        Mockito.`when`(userRepository.findByUsernameAndServiceName(Mockito.anyString(), Mockito.anyString())).thenReturn(User(UUID.randomUUID(), "INVOICE_APP", "John Doe", "foo", "USER", false))
+        Mockito.`when`(userRepository.findByUsernameAndServiceName(Mockito.anyString(), Mockito.anyString()))
+            .thenReturn(mockUser(UUID.randomUUID(), false))
         Mockito.`when`(encoder.matches(Mockito.anyString(), Mockito.anyString())).thenReturn(true)
         val result = authService.login(mockAuthRequest)
         check(result.isLeft())
@@ -109,18 +132,29 @@ class AuthServiceTest {
     @Test
     fun patchUserTest_success() {
         val userId = UUID.randomUUID()
-        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(userId, "INVOICE_APP", "John Doe", "foo", "USER", false))
-        Mockito.`when`(userRepository.findById(Mockito.any(UUID::class.java))).thenReturn(Optional.of(User(userId, "INVOICE_APP", "John Doe", "foo", "USER", false)))
-        Mockito.`when`(userRepository.save(Mockito.any(User::class.java))).thenReturn(User(userId, "INVOICE_APP", "John Doe", "foo", "USER", false))
-        val request = ServiceRequest.PatchRequest(null, null, null, active = true)
+        val mockUser = User(
+            userId,
+            serviceName = "INVOICE_APP",
+            firstName = "John",
+            lastName = "Doe",
+            username = "username",
+            password = "password",
+            email = "email",
+            authorities = "USER",
+            active = true
+        )
+        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(mockUser)
+        Mockito.`when`(userRepository.findById(Mockito.any(UUID::class.java))).thenReturn(Optional.of(mockUser))
+        Mockito.`when`(userRepository.save(Mockito.any(User::class.java))).thenReturn(mockUser)
+        val request = ServiceRequest.PatchRequest(null, null, null, null, null, active = true)
         val result = authService.update(UUID.randomUUID(), request)
         check(!result.isLeft())
-        check(result.toString() == "John Doe")
+        check(result.toString() == "username")
     }
 
     @Test
     fun patchUserTest_emptyUsername() {
-        val request = ServiceRequest.PatchRequest("", null, null, active = true)
+        val request = ServiceRequest.PatchRequest("", null, null, null, null, active = true)
         val result = authService.update(UUID.randomUUID(), request)
         check(result.isLeft())
         check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyUsername }, { false }))
@@ -128,7 +162,7 @@ class AuthServiceTest {
 
     @Test
     fun patchUserTest_blankUsername() {
-        val request = ServiceRequest.PatchRequest("   ", null, null, active = true)
+        val request = ServiceRequest.PatchRequest("   ", null, null, null, null, true)
         val result = authService.update(UUID.randomUUID(), request)
         check(result.isLeft())
         check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyUsername }, { false }))
@@ -136,8 +170,8 @@ class AuthServiceTest {
 
     @Test
     fun patchUserTest_usernameTaken() {
-        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(UUID.randomUUID(), "INVOICE_APP", "John Doe", "foo", "USER", false))
-        val request = ServiceRequest.PatchRequest("John Doe", null, null, active = true)
+        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(mockUser(UUID.randomUUID(), false))
+        val request = ServiceRequest.PatchRequest("John Doe", null, null, null, null, active = true)
         val result = authService.update(UUID.randomUUID(), request)
         check(result.isLeft())
         check(result.fold({ customError -> customError is RegistrationFailure.UsernameAlreadyUsed }, { false }))
@@ -145,7 +179,7 @@ class AuthServiceTest {
 
     @Test
     fun patchUserTest_emptyPassword() {
-        val request = ServiceRequest.PatchRequest(null, "", null, active = true)
+        val request = ServiceRequest.PatchRequest(null, "", null, null, null, true)
         val result = authService.update(UUID.randomUUID(), request)
         check(result.isLeft())
         check(result.fold({ customError -> customError is ValidationFailure.NullOrEmptyPassword }, { false }))
@@ -153,47 +187,48 @@ class AuthServiceTest {
 
     @Test
     fun patchUserTest_emptyAuthorities() {
-        val userId = UUID.randomUUID()
-        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(userId, "INVOICE_APP", "John Doe", "foo", "USER", false))
-        Mockito.`when`(userRepository.findById(Mockito.any(UUID::class.java))).thenReturn(Optional.of(User(userId, "INVOICE_APP", "John Doe", "foo", "USER", false)))
-        Mockito.`when`(userRepository.save(Mockito.any(User::class.java))).thenReturn(User(userId, "INVOICE_APP", "John Doe", "foo", "USER", false))
-        val request = ServiceRequest.PatchRequest(null, null, "", true)
+        val mockUser = mockUser(UUID.randomUUID(), false)
+        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(mockUser)
+        Mockito.`when`(userRepository.findById(Mockito.any(UUID::class.java))).thenReturn(Optional.of(mockUser))
+        Mockito.`when`(userRepository.save(Mockito.any(User::class.java))).thenReturn(mockUser)
+        val request = ServiceRequest.PatchRequest(null, null, "", null, null, true)
         val result = authService.update(UUID.randomUUID(), request)
         check(!result.isLeft())
-        check(result.toString() == "John Doe")
+        check(result.toString() == "username")
     }
 
     @Test
     fun patchUserTest_removeAuthority() {
-        val userId = UUID.randomUUID()
-        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(userId, "INVOICE_APP", "John Doe", "foo", "USER", false))
-        Mockito.`when`(userRepository.findById(Mockito.any(UUID::class.java))).thenReturn(Optional.of(User(userId, "INVOICE_APP", "John Doe", "foo", "USER", false)))
-        Mockito.`when`(userRepository.save(Mockito.any(User::class.java))).thenReturn(User(userId, "INVOICE_APP", "John Doe", "foo", "USER", false))
-        val request = ServiceRequest.PatchRequest(null, null, "", true)
+        val mockUser = mockUser(UUID.randomUUID(), false)
+        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(mockUser)
+        Mockito.`when`(userRepository.findById(Mockito.any(UUID::class.java))).thenReturn(Optional.of(mockUser))
+        Mockito.`when`(userRepository.save(Mockito.any(User::class.java))).thenReturn(mockUser)
+        val request = ServiceRequest.PatchRequest(null, null, "", null, null, true)
         val result = authService.update(UUID.randomUUID(), request)
         check(!result.isLeft())
-        check(result.toString() == "John Doe")
+        check(result.toString() == "username")
     }
 
     @Test
     fun patchUserTest_addAuthority() {
-        val userId = UUID.randomUUID()
-        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(userId, "INVOICE_APP", "John Doe", "foo", "USER", false))
-        Mockito.`when`(userRepository.findById(Mockito.any(UUID::class.java))).thenReturn(Optional.of(User(userId, "INVOICE_APP", "John Doe", "foo", "USER", false)))
-        Mockito.`when`(userRepository.save(Mockito.any(User::class.java))).thenReturn(User(userId, "INVOICE_APP", "John Doe", "foo", "USER", false))
-        val request = ServiceRequest.PatchRequest(null, null, "USER, ADMIN", true)
+        val mockUser = mockUser(UUID.randomUUID(), false)
+        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(mockUser)
+        Mockito.`when`(userRepository.findById(Mockito.any(UUID::class.java))).thenReturn(Optional.of(mockUser))
+        Mockito.`when`(userRepository.save(Mockito.any(User::class.java))).thenReturn(mockUser)
+        val request = ServiceRequest.PatchRequest(null, null, "USER, ADMIN", null, null, true)
         val result = authService.update(UUID.randomUUID(), request)
         check(!result.isLeft())
-        check(result.toString() == "John Doe")
+        check(result.toString() == "username")
     }
 
     @Test
     fun patchUserTest_invalidAuthority() {
         val userId = UUID.randomUUID()
-        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(userId, "INVOICE_APP", "John Doe", "foo", "USER", false))
-        Mockito.`when`(userRepository.findById(Mockito.any(UUID::class.java))).thenReturn(Optional.of(User(userId, "INVOICE_APP", "John Doe", "foo", "USER", false)))
-        Mockito.`when`(userRepository.save(Mockito.any(User::class.java))).thenReturn(User(userId, "INVOICE_APP", "John Doe", "foo", "USER", false))
-        val request = ServiceRequest.PatchRequest(null, null, "USER, ADMIN, TEST", true)
+        val mockUser = mockUser(userId, false)
+        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(mockUser)
+        Mockito.`when`(userRepository.findById(Mockito.any(UUID::class.java))).thenReturn(Optional.of(mockUser))
+        Mockito.`when`(userRepository.save(Mockito.any(User::class.java))).thenReturn(mockUser)
+        val request = ServiceRequest.PatchRequest(null, null, "USER, ADMIN, TEST", null, null,  true)
         val result = authService.update(UUID.randomUUID(), request)
         check(result.isLeft())
         check(result.fold({ customError -> customError is ValidationFailure.InvalidRequest }, { false }))
@@ -201,13 +236,27 @@ class AuthServiceTest {
 
     @Test
     fun patchUserTest_deactivate() {
-        val userId = UUID.randomUUID()
-        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(User(userId, "INVOICE_APP", "John Doe", "foo", "USER", true))
-        Mockito.`when`(userRepository.findById(Mockito.any(UUID::class.java))).thenReturn(Optional.of(User(userId, "INVOICE_APP", "John Doe", "foo", "USER", true)))
-        Mockito.`when`(userRepository.save(Mockito.any(User::class.java))).thenReturn(User(userId, "INVOICE_APP", "John Doe", "foo", "USER", false))
-        val request = ServiceRequest.PatchRequest(null, null, null, false)
+        val mockUser = mockUser(UUID.randomUUID(), true)
+        Mockito.`when`(userRepository.findByUsername(Mockito.anyString())).thenReturn(mockUser)
+        Mockito.`when`(userRepository.findById(Mockito.any(UUID::class.java))).thenReturn(Optional.of(mockUser))
+        Mockito.`when`(userRepository.save(Mockito.any(User::class.java))).thenReturn(mockUser)
+        val request = ServiceRequest.PatchRequest(null, null, null, null, null, false)
         val result = authService.update(UUID.randomUUID(), request)
         check(!result.isLeft())
-        check(result.toString() == "John Doe")
+        check(result.toString() == "username")
+    }
+
+    private fun mockUser(userId: UUID, active: Boolean): User {
+        return User(
+            userId,
+            serviceName = "INVOICE_APP",
+            firstName = "John",
+            lastName = "Doe",
+            username = "username",
+            password = "password",
+            email = "email",
+            authorities = "USER",
+            active = active
+        )
     }
 }

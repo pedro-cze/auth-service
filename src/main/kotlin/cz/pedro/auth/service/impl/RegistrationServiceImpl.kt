@@ -100,7 +100,17 @@ class RegistrationServiceImpl(
     }
 
     private fun createUser(request: ServiceRequest.RegistrationRequest): Either<GeneralFailure, User> {
-        val user = User(null, request.appId, request.username, encoder.encode(request.password), request.authorities)
+        val user = User(
+            null,
+            request.appId,
+            firstName = "firstname",
+            lastName = "lastname",
+            email = "email",
+            username = request.username,
+            password = encoder.encode(request.password),
+            active = false,
+            authorities = request.authorities
+        )
         val res: User = userRepository.save(user)
         return if (res.id == null) {
             Either.left(RegistrationFailure.SavingFailed())

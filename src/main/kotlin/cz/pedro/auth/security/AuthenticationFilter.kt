@@ -5,7 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm
 import cz.pedro.auth.security.JwtProperties.Companion.HEADER_STRING
 import cz.pedro.auth.security.JwtProperties.Companion.SECRET
 import cz.pedro.auth.security.JwtProperties.Companion.TOKEN_PREFIX
-import cz.pedro.auth.service.AuthorizationService
+import cz.pedro.auth.service.AuthenticationService
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
@@ -15,7 +15,7 @@ import javax.servlet.FilterChain
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-class AuthorizationFilter(authenticationManager: AuthenticationManager, val service: AuthorizationService) : BasicAuthenticationFilter(authenticationManager) {
+class AuthenticationFilter(authenticationManager: AuthenticationManager, val service: AuthenticationService) : BasicAuthenticationFilter(authenticationManager) {
 
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain) {
         val header = request.getHeader(HEADER_STRING)
