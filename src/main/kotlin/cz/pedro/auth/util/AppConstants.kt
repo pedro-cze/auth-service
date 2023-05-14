@@ -6,4 +6,8 @@ sealed class AppConstants {
         const val USER: String = "USER"
         const val ADMIN: String = "ADMIN"
     }
+
+    object Misc {
+        const val EMPTY_STRING: String = ""
+    }
 }

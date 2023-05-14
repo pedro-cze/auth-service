@@ -1,6 +1,24 @@
 version: '3'
 services:
 
+  postgres:
+    image: postgres:latest
+    container_name: postgres.devspot
+    hostname: postgres.devspot
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=users
+      - DB_NAME=users
+      - TZ=Europe/Prague
+    volumes:
+      - ./dbinit.sh:/docker-entrypoint-initdb.d/dbinit.sh
+      - postgres_devspot:/var/lib/postgresql/data/
+    networks:
+      postgres_devspot:
+
   auth:
     build: .
     image: speedro/auth_service
@@ -10,12 +28,13 @@ services:
       - "8083:8083"
     networks:
       - auth
-      - consul_consul
-      - postgres_postgres_pedro
+      - postgres_devspot
+    depends_on:
+      - postgres
 
 networks:
   auth:
-  consul_consul:
-    external: true
-  postgres_postgres_pedro:
-    external: true
+  postgres_devspot:
+
+volumes:
+  postgres_devspot:

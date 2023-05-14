@@ -116,7 +116,10 @@ class AuthServiceImpl(
                 username = patch.username ?: user.username,
                 password = patch.password ?: user.password,
                 authorities = patch.authorities ?: user.authorities,
-                active = patch.active ?: user.active
+                active = patch.active ?: user.active,
+                email = user.email,
+                firstName = user.firstName,
+                lastName = user.lastName
         )
         val res = userRepository.save(patched)
         return if (res.id != patched.id) {

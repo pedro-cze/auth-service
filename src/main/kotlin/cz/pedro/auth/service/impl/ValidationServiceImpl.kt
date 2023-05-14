@@ -8,6 +8,7 @@ import cz.pedro.auth.error.MissingAppId
 import cz.pedro.auth.error.PatchFailure
 import cz.pedro.auth.repository.UserRepository
 import cz.pedro.auth.service.ValidationService
+import cz.pedro.auth.service.impl.ValidationServiceImpl.Constants.DEFAULT_SYSTEM_ROLES
 import cz.pedro.auth.util.AppConstants
 import cz.pedro.auth.util.AppId
 import cz.pedro.auth.util.Either
@@ -19,7 +20,9 @@ class ValidationServiceImpl(
         @Autowired val userRepository: UserRepository
 ) : ValidationService {
 
-    private val DEFAULT_SYSTEM_ROLES = listOf(AppConstants.Authority.USER, AppConstants.Authority.ADMIN)
+    object Constants {
+        val DEFAULT_SYSTEM_ROLES = listOf(AppConstants.Authority.USER, AppConstants.Authority.ADMIN)
+    }
 
     override fun validate(request: ServiceRequest): Either<GeneralFailure, ServiceRequest> {
         return when (request) {

@@ -1,8 +1,8 @@
 package cz.pedro.auth.configuration
 
-import cz.pedro.auth.security.AuthorizationFilter
-import cz.pedro.auth.service.AuthorizationService
-import cz.pedro.auth.service.impl.AuthorizationServiceImpl
+import cz.pedro.auth.security.AuthenticationFilter
+import cz.pedro.auth.service.AuthenticationService
+import cz.pedro.auth.service.impl.AuthenticationServiceImpl
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -22,7 +22,7 @@ class WebSecurityConfiguration : WebSecurityConfigurerAdapter() {
 
     override fun configure(http: HttpSecurity?) {
         http?.cors()?.and()?.csrf()?.disable()?.sessionManagement()?.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)?.and()
-                ?.addFilter(AuthorizationFilter(authenticationManager(), userDetailsService() as AuthorizationService)) // only certain users can call following endpoints
+                ?.addFilter(AuthenticationFilter(authenticationManager(), userDetailsService() as AuthenticationService)) // only certain users can call following endpoints
                 ?.authorizeRequests()
                 ?.antMatchers(HttpMethod.POST, "/auth/login")?.permitAll()
                 ?.antMatchers(HttpMethod.POST, "/session/login")?.permitAll()
@@ -41,7 +41,7 @@ class WebSecurityConfiguration : WebSecurityConfigurerAdapter() {
 
     @Bean
     override fun userDetailsService(): UserDetailsService {
-        return AuthorizationServiceImpl()
+        return AuthenticationServiceImpl()
     }
 
     @Bean

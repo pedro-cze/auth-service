@@ -1,26 +1,15 @@
 spring:
-  mail:
-    host: localhost
-    port: 25
-    protocol: smtp
-    properties:
-      mail:
-        smtp:
-          auth: false
-          starttsl:
-            enable: false
 
   application:
     name: auth-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/users
+    url: jdbc:postgresql://postgres:5432/users
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: none
-    show-sql: true
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.yaml
 server:
